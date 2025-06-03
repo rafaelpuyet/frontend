@@ -1,20 +1,21 @@
+'use client';
+
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Basic client-side validation
     if (!formData.email || !formData.password) {
       setError('Please fill in both email and password');
       setLoading(false);
@@ -23,7 +24,7 @@ export default function Login() {
 
     try {
       await login(formData.email, formData.password);
-      navigate('/appointments');
+      router.push('/appointments');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password');
       setLoading(false);

@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useState, useEffect } from 'react';
 import api from '../services/api';
 
@@ -10,11 +12,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      api.get('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      api
+        .get('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         .then((response) => {
           setUser(response.data.user);
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           setLoading(false);
         })
         .catch(() => {
