@@ -2,33 +2,33 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer class="flex justify-center">
-      <div class="flex max-w-[960px] flex-1 flex-col">
-        <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
-          <div class="flex flex-wrap items-center justify-center gap-6 @[480px]:flex-row @[480px]:justify-around">
-            <a class="text-[#4571a1] text-base font-normal leading-normal min-w-40" href="#">Acerca de</a>
-            <a class="text-[#4571a1] text-base font-normal leading-normal min-w-40" href="#">Contacto</a>
-            <a class="text-[#4571a1] text-base font-normal leading-normal min-w-40" href="#">Política de Privacidad</a>
-          </div>
-          <div class="flex flex-wrap justify-center gap-4">
-            <a href="#">
-              <div class="text-[#4571a1]" data-icon="TwitterLogo" data-size="24px" data-weight="regular">
-                <i className="fab fa-twitter text-xl"></i>
-              </div>
-            </a>
-            <a href="#">
-              <div class="text-[#4571a1]" data-icon="FacebookLogo" data-size="24px" data-weight="regular">
-                <i className="fab fa-facebook-f text-xl"></i>
-              </div>
-            </a>
-            <a href="#">
-              <div class="text-[#4571a1]" data-icon="InstagramLogo" data-size="24px" data-weight="regular">
-                <i className="fab fa-instagram text-xl"></i>
-              </div>
-            </a>
-          </div>
-          <p class="text-[#4571a1] text-base font-normal leading-normal">© 2024 Agendame. Todos los derechos reservados.</p>
-        </footer>
+    <footer className="flex justify-center text-white py-8 sm:py-10">
+      <div className="container mx-auto flex flex-col gap-4 text-center px-4 sm:gap-6">
+        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+          <Link href="/about" className="text-[#4571a1] text-sm font-normal hover:underline sm:text-base">
+            Acerca de
+          </Link>
+          <Link href="/contact" className="text-[#4571a1] text-sm font-normal hover:underline sm:text-base">
+            Contacto
+          </Link>
+          <Link href="/privacy" className="text-[#4571a1] text-sm font-normal hover:underline sm:text-base">
+            Política de Privacidad
+          </Link>
+        </div>
+        <div className="flex justify-center gap-4">
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+            <i className="fab fa-twitter text-[#4571a1] text-lg sm:text-xl"></i>
+          </a>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+            <i className="fab fa-facebook-f text-[#4571a1] text-lg sm:text-xl"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <i className="fab fa-instagram text-[#4571a1] text-lg sm:text-xl"></i>
+          </a>
+        </div>
+        <p className="text-[#4571a1] text-base">
+          © {new Date().getFullYear()} Agendame. Todos los derechos reservados.
+        </p>
       </div>
     </footer>
   );
