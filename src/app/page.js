@@ -5,7 +5,11 @@ import Link from 'next/link';
 import { AuthContext } from '../context/AuthContext';
 
 export default function Home() {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto p-8 text-center">

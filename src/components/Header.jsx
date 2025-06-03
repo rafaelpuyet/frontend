@@ -15,27 +15,27 @@ export default function Header() {
         </h1>
         <nav className="space-x-4">
           <Link href="/" className="hover:underline">
-            Home
+            Inicio
           </Link>
           {user ? (
             <>
               <Link href="/appointments" className="hover:underline">
-                Appointments
+                Citas
               </Link>
               <button
                 onClick={logout}
                 className="hover:underline focus:outline-none"
               >
-                Logout
+                Cerrar Sesión
               </button>
             </>
           ) : (
             <>
               <Link href="/login" className="hover:underline">
-                Login
+                Iniciar Sesión
               </Link>
               <Link href="/register" className="hover:underline">
-                Register
+                Registrarse
               </Link>
             </>
           )}

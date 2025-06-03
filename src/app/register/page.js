@@ -4,8 +4,8 @@ import { useState, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '../../context/AuthContext';
 
-export default function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+export default function Register() {
+  const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'user' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
@@ -16,17 +16,18 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    if (!formData.email || !formData.password) {
-      setError('Por favor, completa el correo y la contraseña');
+    if (!formData.username || !formData.email || !formData.password) {
+      setError('Por favor, completa todos los campos');
       setLoading(false);
       return;
     }
 
     try {
+      await api.post('/api/auth/register', formData);
       await login(formData.email, formData.password);
       router.push('/appointments');
     } catch (err) {
-      setError(err.response?.data?.message || 'Correo o contraseña inválidos');
+      setError(err.response?.data?.message || 'Error al registrarse');
       setLoading(false);
     }
   };
@@ -38,13 +39,28 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Iniciar Sesión</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Registrarse</h2>
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
             {error}
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              Nombre de Usuario
+            </label>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="mt-1 w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ingresa tu nombre de usuario"
+              required
+            />
+          </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Correo Electrónico
@@ -82,13 +98,13 @@ export default function Login() {
               loading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+            {loading ? 'Registrando...' : 'Registrarse'}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          ¿No tienes cuenta?{' '}
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Regístrate
+          ¿Ya tienes cuenta?{' '}
+          <Link href="/login" className="text-blue-600 hover:underline">
+            Iniciar Sesión
           </Link>
         </p>
       </div>
