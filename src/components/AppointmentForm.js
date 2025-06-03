@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createAppointment } from '../lib/api';
+import { createAppointment } from '../app/lib/api';
 
 export default function AppointmentForm() {
   const [formData, setFormData] = useState({ title: '', date: '', description: '' });

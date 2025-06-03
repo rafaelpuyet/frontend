@@ -2,23 +2,23 @@ import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import ErrorBoundary from '../components/ErrorBoundary';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], weights: [400, 500, 700, 900] });
 
 export const metadata = {
-  title: 'Agenda App',
-  description: 'Business agenda management platform for Chile',
+  title: 'Agendame | Gestión de Citas para Negocios en Chile',
+  description: 'Organiza tu negocio con Agendame, la plataforma de gestión de citas fácil y profesional.',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
-      <body className="bg-gray-100">
+      <body className={`${inter.className} bg-gray-100`}>
         <AuthProvider>
-          <ErrorBoundary>
-            <Header />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-          </ErrorBoundary>
+        <Header />
+          <main className="min-h-screen">{children}</main>
+        <Footer />
         </AuthProvider>
       </body>
     </html>

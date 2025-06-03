@@ -8,39 +8,23 @@ export default function Header() {
   const { user, logout } = useContext(AuthContext);
 
   return (
-    <header className="bg-blue-600 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold">
-          <Link href="/">Agenda App</Link>
-        </h1>
-        <nav className="space-x-4">
-          <Link href="/" className="hover:underline">
-            Inicio
-          </Link>
-          {user ? (
-            <>
-              <Link href="/appointments" className="hover:underline">
-                Citas
-              </Link>
-              <button
-                onClick={logout}
-                className="hover:underline focus:outline-none"
-              >
-                Cerrar Sesión
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="hover:underline">
-                Iniciar Sesión
-              </Link>
-              <Link href="/register" className="hover:underline">
-                Registrarse
-              </Link>
-            </>
-          )}
-        </nav>
-      </div>
-    </header>
+        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e6edf4] px-10 py-3">
+          <div className="flex items-center gap-4 text-[#0c141d]">
+            <h2 className="text-[#0c141d] text-lg font-bold leading-tight tracking-[-0.015em]">Agendame</h2>
+          </div>
+          <div className="flex flex-1 justify-end gap-8">
+            <div className="flex items-center gap-9">
+              <a className="text-[#0c141d] text-sm font-medium leading-normal" href="#">Inicio</a>
+              <a className="text-[#0c141d] text-sm font-medium leading-normal" href="#">Precios</a>
+              <a className="text-[#0c141d] text-sm font-medium leading-normal" href="#">Características</a>
+              <a className="text-[#0c141d] text-sm font-medium leading-normal" href="#">Testimonios</a>
+            </div>
+            <button
+              className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#1988ff] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
+            >
+              <span className="truncate">Regístrate Gratis</span>
+            </button>
+          </div>
+        </header>
   );
 }
