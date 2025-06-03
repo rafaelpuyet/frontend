@@ -3,6 +3,7 @@ import { AuthProvider } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Inter } from 'next/font/google';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const inter = Inter({ subsets: ['latin'], weights: [400, 500, 700, 900] });
 

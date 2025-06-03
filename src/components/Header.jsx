@@ -10,6 +10,7 @@ export default function Header() {
   return (
         <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e6edf4] px-10 py-3">
           <div className="flex items-center gap-4 text-[#0c141d]">
+            <i className="fas fa-calendar-alt text-gray-900 text-lg"></i>
             <h2 className="text-[#0c141d] text-lg font-bold leading-tight tracking-[-0.015em]">Agendame</h2>
           </div>
           <div className="flex flex-1 justify-end gap-8">

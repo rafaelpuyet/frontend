@@ -70,11 +70,13 @@ export default function Home() {
                 <div className="flex flex-col gap-2">
                   <div className="text-[13px] font-normal leading-normal flex gap-3 text-[#0c141d]">
                     <div className="text-[#0c141d]" data-icon="Check" data-size="20px" data-weight="regular">
+                      <i className="fas fa-check text-gray-900 text-sm"></i>
                     </div>
                     Hasta 2 citas/mes
                   </div>
                   <div className="text-[13px] font-normal leading-normal flex gap-3 text-[#0c141d]">
                     <div className="text-[#0c141d]" data-icon="Check" data-size="20px" data-weight="regular">
+                      <i className="fas fa-check text-gray-900 text-sm"></i>
                     </div>
                     Gestión básica de citas
                   </div>
@@ -99,21 +101,25 @@ export default function Home() {
                 <div className="flex flex-col gap-2">
                   <div className="text-[13px] font-normal leading-normal flex gap-3 text-[#0c141d]">
                     <div className="text-[#0c141d]" data-icon="Check" data-size="20px" data-weight="regular">
+                      <i className="fas fa-check text-gray-900 text-sm"></i>
                     </div>
                     Citas ilimitadas
                   </div>
                   <div className="text-[13px] font-normal leading-normal flex gap-3 text-[#0c141d]">
                     <div className="text-[#0c141d]" data-icon="Check" data-size="20px" data-weight="regular">
+                      <i className="fas fa-check text-gray-900 text-sm"></i>
                     </div>
                     Recordatorios por SMS
                   </div>
                   <div className="text-[13px] font-normal leading-normal flex gap-3 text-[#0c141d]">
                     <div className="text-[#0c141d]" data-icon="Check" data-size="20px" data-weight="regular">
+                      <i className="fas fa-check text-gray-900 text-sm"></i>
                     </div>
                     Integración con redes sociales
                   </div>
                   <div className="text-[13px] font-normal leading-normal flex gap-3 text-[#0c141d]">
                     <div className="text-[#0c141d]" data-icon="Check" data-size="20px" data-weight="regular">
+                      <i className="fas fa-check text-gray-900 text-sm"></i>
                     </div>
                     Soporte prioritario
                   </div>
@@ -135,6 +141,7 @@ export default function Home() {
               <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-0">
                 <div className="flex flex-1 gap-3 rounded-lg border border-[#cddbea] bg-slate-50 p-4 flex-col">
                   <div className="text-[#0c141d]" data-icon="Calendar" data-size="24px" data-weight="regular">
+                    <i className="fas fa-calendar-alt text-gray-900 text-2xl"></i>
                   </div>
                   <div className="flex flex-col gap-1">
                     <h2 className="text-[#0c141d] text-base font-bold leading-tight">Configuración Sencilla</h2>
@@ -143,6 +150,7 @@ export default function Home() {
                 </div>
                 <div className="flex flex-1 gap-3 rounded-lg border border-[#cddbea] bg-slate-50 p-4 flex-col">
                   <div className="text-[#0c141d]" data-icon="Users" data-size="24px" data-weight="regular">
+                    <i className="fas fa-users text-gray-900 text-2xl"></i>
                   </div>
                   <div className="flex flex-col gap-1">
                     <h2 className="text-[#0c141d] text-base font-bold leading-tight">Reservas de Clientes</h2>
@@ -151,6 +159,7 @@ export default function Home() {
                 </div>
                 <div className="flex flex-1 gap-3 rounded-lg border border-[#cddbea] bg-slate-50 p-4 flex-col">
                   <div className="text-[#0c141d]" data-icon="Clock" data-size="24px" data-weight="regular">
+                    <i className="fas fa-clock text-gray-900 text-2xl"></i>
                   </div>
                   <div className="flex flex-col gap-1">
                     <h2 className="text-[#0c141d] text-base font-bold leading-tight">Recordatorios Automáticos</h2>
