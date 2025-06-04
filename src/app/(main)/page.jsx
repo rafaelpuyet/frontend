@@ -3,7 +3,7 @@
 import { useContext } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import { Inter, Noto_Sans } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
