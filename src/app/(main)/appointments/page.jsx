@@ -12,7 +12,7 @@ const notoSans = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '700', '
 
 export default function Appointments() {
   const { user, loading } = useContext(AuthContext);
-  const [selectedDate, setSelectedDate] = useState(new Date(2024, 5, 6)); // June 6, 2024
+  const [selectedDate, setSelectedDate] = useState(new Date(2025, 5, 3)); // June 3, 2025
   const [filters, setFilters] = useState({
     branch: 'all',
     professional: 'all',
@@ -28,26 +28,34 @@ export default function Appointments() {
       professional: 'Matias Garcia',
       client: 'Patricia Fuenzalida',
       title: 'Tratamiento primera cita',
-      start: new Date(2024, 5, 6, 9, 0),
-      end: new Date(2024, 5, 6, 11, 0),
+      start: new Date(2025, 5, 3, 9, 0),
+      end: new Date(2025, 5, 3, 11, 0),
       status: 'Confirmado',
       type: 'Primera',
     },
-    // Add other appointments from HTML...
+    {
+      id: 2,
+      professional: 'Sofia Reyes',
+      client: 'Macarena Rial',
+      title: 'Primera cita',
+      start: new Date(2025, 5, 3, 9, 0),
+      end: new Date(2025, 5, 3, 10, 0),
+      status: 'Confirmado',
+      type: 'Primera',
+    },
+    // Add more appointments as needed
   ]);
 
   useEffect(() => {
     // Fetch appointments from http://localhost:5000/api/appointments
-    // Example: axios.get(`${process.env.NEXT_PUBLIC_API_URL}/appointments`, { headers: { Authorization: `Bearer ${user.token}` } })
-  }, [filters, selectedDate]);
+    console.log('Fetching appointments for date:', selectedDate.toISOString());
+  }, [filters, selectedDate, user]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-gray-800">Cargando...</div>;
   }
 
-  /*if (!user) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-800">Por favor, inicia sesión.</div>;
-  }*/
+
 
   return (
     <div className={`relative min-h-screen bg-slate-50 ${inter.className} ${notoSans.className}`}>
