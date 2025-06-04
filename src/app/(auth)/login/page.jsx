@@ -12,7 +12,7 @@ const notoSans = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '700', '
 export default function Login() {
   const { login } = useContext(AuthContext);
   const router = useRouter();
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ identifier: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -26,10 +26,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.identifier, formData.password);
       router.push('/appointments');
     } catch (err) {
-      setError(err.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+      setError(err.response.data.error || 'Error al iniciar sesión. Verifica tus credenciales.');
     } finally {
       setLoading(false);
     }
@@ -49,9 +49,9 @@ export default function Login() {
             <label className="flex flex-col gap-1">
               <input
                 type="text"
-                name="email"
+                name="identifier"
                 placeholder="Correo electrónico o nombre de usuario"
-                value={formData.email}
+                value={formData.identifier}
                 onChange={handleChange}
                 className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
                 required
@@ -82,7 +82,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center rounded-xl h-10 px-3 bg-[#d7e1f3] text-[#121417] text-sm font-bold hover:bg-blue-700 disabled:bg-blue-400 sm:h-12 sm:px-4 sm:text-base md:h-14 md:text-lg"
+              className="flex w-full items-center justify-center rounded-xl h-10 px-3 text-sm font-bold bg-[#d7e1f3] text-[#121417] hover:bg-blue-700 disabled:bg-blue-400 cursor-pointer disabled:cursor-not-allowed sm:h-12 sm:px-4 sm:text-base md:h-14 md:text-lg"
             >
               {loading ? 'Cargando...' : 'Iniciar Sesión'}
             </button>
