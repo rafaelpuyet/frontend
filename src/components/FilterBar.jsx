@@ -22,13 +22,12 @@ export default function FilterBar({ filters, setFilters }) {
     <h2 class="text-sm font-medium text-gray-500 mb-2">Selecciona la sucursal</h2>
     <div class="relative mb-6">
       <select
-        class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8">
+        class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8 cursor-pointer">
         <option selected="">Sucursal casa matriz</option>
         <option>Sucursal Providencia</option>
         <option>Sucursal Las Condes</option>
       </select>
-      <span
-        class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
     </div>
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Agendas</h2>
     <div class="space-y-4">
@@ -36,14 +35,13 @@ export default function FilterBar({ filters, setFilters }) {
         <label class="block text-sm font-medium text-gray-700 mb-1" for="profesional_filter">Profesional</label>
         <div class="relative">
           <select
-            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8"
+            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8 cursor-pointer"
             id="profesional_filter">
             <option selected="">Todos</option>
             <option>Matias Garcia</option>
             <option>Sofia Reyes</option>
           </select>
-          <span
-            class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
         </div>
       </div>
       <div class="flex items-center space-x-1">
@@ -59,7 +57,7 @@ export default function FilterBar({ filters, setFilters }) {
           reserva</label>
         <div class="relative">
           <select
-            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8"
+            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8 cursor-pointer"
             id="estado_reserva_filter">
             <option selected="">Todos</option>
             <option>Confirmado</option>
@@ -67,27 +65,25 @@ export default function FilterBar({ filters, setFilters }) {
             <option>Cancelado</option>
             <option>No asistió</option>
           </select>
-          <span
-            class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
         </div>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1" for="tipo_cita_filter">Reservas activas</label>
         <div class="relative">
           <select
-            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8"
+            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8 cursor-pointer"
             id="tipo_cita_filter">
             <option selected="">Todas</option>
             <option>Primera</option>
             <option>Control</option>
             <option>Grupal</option>
           </select>
-          <span
-            class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
         </div>
       </div>
       <div class="relative">
-        <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         <input
           class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block pl-10 p-2.5"
           placeholder="Búsqueda rápida de hora" type="text" />
@@ -100,7 +96,7 @@ export default function FilterBar({ filters, setFilters }) {
             <i className="fas fa-chevron-left text-sm"></i>
           </button>
            <div class="flex">
-            <span class="text-sm font-semibold text-gray-800 align-middle py-2">Mayo 2024</span>
+            <span class="text-sm font-semibold text-gray-800 align-middle p-2 rounded-full hover:bg-gray-100 cursor-pointer">Mayo 2024</span>
             </div>
           <button class="text-gray-500 hover:text-gray-700 align-middle p-1 rounded-full hover:bg-gray-100 cursor-pointer">
             <i className="fas fa-chevron-right text-sm"></i>
