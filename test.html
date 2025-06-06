@@ -1,416 +1,465 @@
 <!DOCTYPE html>
-<html lang="es"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Agenda Clínica</title>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-<style>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Agenda Clínica</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
     body {
       font-family: 'Roboto', sans-serif;
       background-color: #f8fafc;
     }
+
     .material-icons {
       vertical-align: middle;
     }
+
     .calendar-grid {
       display: grid;
-      grid-template-columns: auto repeat(5, 1fr);}
+      grid-template-columns: auto repeat(5, 1fr);
+    }
+
     .time-slot {
-        height: 60px;}
+      height: 60px;
+    }
+
     .time-slot-30 {
-        height: 30px;}
+      height: 30px;
+    }
   </style>
 </head>
-<body class="flex h-screen overflow-hidden">
-<aside class="w-80 bg-white p-6 border-r border-gray-200 overflow-y-auto">
-<div class="flex items-center justify-between mb-6">
-<img alt="Logo de la clínica" class="h-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUcpFjg0lkRM3zshHtmKv00LDZMLCwOoHXRywFk4n284ESlCMNKOUHvTLhPbpkNXtPP4iF2xk8XHXDxjSxGa68EiM3XooXOO0mXAkASdOhPBKT_YEku-GoDTgepJpxCB2yHTUOgWuwCGL8HKHGaBj5WAgXXMUNwNIpAeGPH9oGQWib7cgAyqk3HenLrvkGLPM8PDs0aEnH2nU24md7y0gOrAj328GcQtZqr15TQGVSBFD9_xf5GrD9HkmbXou2BNuoMFtvVBIzBto"/>
-<button class="text-gray-500 hover:text-gray-700">
-<span class="material-icons">menu</span>
-</button>
-</div>
-<h2 class="text-sm font-medium text-gray-500 mb-2">Selecciona la sucursal</h2>
-<div class="relative mb-6">
-<select class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8">
-<option selected="">Sucursal casa matriz</option>
-<option>Sucursal Providencia</option>
-<option>Sucursal Las Condes</option>
-</select>
-<span class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
-</div>
-<h2 class="text-lg font-semibold text-gray-800 mb-4">Agendas</h2>
-<div class="space-y-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="profesional_filter">Profesional</label>
-<div class="relative">
-<select class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8" id="profesional_filter">
-<option selected="">Todos</option>
-<option>Matias Garcia</option>
-<option>Sofia Reyes</option>
-</select>
-<span class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
-</div>
-</div>
-<div class="flex items-center space-x-1">
-<img alt="Avatar profesional 1" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvI7H3It-cg0H2bniW5woUS04n92XrPRJWrGK6FmYzLb0bHOdRo_XehJlvu1x7c58J6nkBNTK3ZaPHnpG5ICwYzCxCdBconjzQW8roWQQT4IiB9um4RiruCfNv408jdwGWkRMqI-SGDfw5YDWRzu1hfpwfnB24kpxTow3NtURXaesRpxUtA8g1HWRA_6gjCpYAtn0SO-iZv5dcS35Lg0XJ5p6wnJ4ZP-NUhMyy5CT4Bs6_q9FvRpfAeWQBMfw1HrNtzQ7r73pwXCA"/>
-<img alt="Avatar profesional 2" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhCZOm_T5XEGEcHAfLt-2_Mxr10db8ujsH0F7xVM5qiLbgdjf2zYo7C-b_C8tlyt7DQzM23hiXwFVqHzvoZ0n9c6jsoFl6Bh-PyOFA198td0rOOPvMF01qrF5hZM2f1FVg_chyAkVZ89gusV6Q973ZMztKagehdk_64DaclItWYNW_T-OmvHEt8evcWPC7qV2QOGwjwLTimklNqzg9NuzxUyxCx_Bzzz-rnrAUPPUrwaXvLEM9YuDc3FKsrC1zSFmiovjZy2RSiIM"/>
-<img alt="Avatar profesional 3" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcfVCKlSsc6Slg08bEhPdEnBWS2HDShb399vmfnk8RO1tZ8TDrajzt5A9UZDveR-kbUo1nmg8EqyVE6T1dhaW5HgKk4x-wpXtKvl0aM3RUxz9ErrYKlerRcP9RYeCoMKHsJEbznVkEqYvRYROINafzj9jpj2qWeAYsbZ0XMpGalC4pUo2ePEo-QhaPnaQujYklu8XLth7VFErMhCtAYsMFVXLm5VcmJVOOKNIlSGsEWtdHtmuLnRKIqGeM9-W1KD6S8qr65Wewf9Y"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="estado_reserva_filter">Estado de la reserva</label>
-<div class="relative">
-<select class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8" id="estado_reserva_filter">
-<option selected="">Todos</option>
-<option>Confirmado</option>
-<option>Pendiente</option>
-<option>Cancelado</option>
-<option>No asistió</option>
-</select>
-<span class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
-</div>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="tipo_cita_filter">Reservas activas</label>
-<div class="relative">
-<select class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8" id="tipo_cita_filter">
-<option selected="">Todas</option>
-<option>Primera</option>
-<option>Control</option>
-<option>Grupal</option>
-</select>
-<span class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
-</div>
-</div>
-<div class="relative">
-<span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
-<input class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block pl-10 p-2.5" placeholder="Búsqueda rápida de hora" type="text"/>
-</div>
-</div>
-<div class="mt-8">
-<div class="flex items-center justify-between mb-2">
-<h3 class="text-sm font-semibold text-gray-800">Mayo 2024</h3>
-<div class="flex space-x-1">
-<button class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
-<span class="material-icons text-base">chevron_left</span>
-</button>
-<button class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
-<span class="material-icons text-base">chevron_right</span>
-</button>
-</div>
-</div>
-<div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-600">
-<span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
-<span class="text-gray-400">26</span><span class="text-gray-400">27</span><span class="text-gray-400">28</span><span class="text-gray-400">29</span><span class="text-gray-400">30</span><span>1</span><span>2</span>
-<span>3</span><span>4</span><span>5</span><span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mx-auto">6</span><span>7</span><span>8</span><span>9</span>
-<span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
-<span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
-<span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
-<span>31</span><span class="text-gray-400">1</span><span class="text-gray-400">2</span><span class="text-gray-400">3</span><span class="text-gray-400">4</span><span class="text-gray-400">5</span><span class="text-gray-400">6</span>
-</div>
-</div>
-<div class="mt-6">
-<div class="flex items-center justify-between mb-2">
-<h3 class="text-sm font-semibold text-gray-800">Junio 2024</h3>
-<div class="flex space-x-1">
-<button class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
-<span class="material-icons text-base">chevron_left</span>
-</button>
-<button class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
-<span class="material-icons text-base">chevron_right</span>
-</button>
-</div>
-</div>
-<div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-600">
-<span class="text-gray-400">27</span> <span class="text-gray-400">28</span> <span class="text-gray-400">29</span> <span class="text-gray-400">30</span> <span class="text-gray-400">31</span> <span>1</span> <span>2</span>
-<span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
-<span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
-<span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
-<span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
-</div>
-</div>
-</aside>
-<main class="flex-1 flex flex-col overflow-hidden">
-<header class="bg-white p-4 border-b border-gray-200 flex items-center justify-between">
-<div class="flex items-center space-x-3">
-<button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
-<span class="material-icons">chevron_left</span>
-</button>
-<button class="text-gray-600 hover:text-gray-800 font-medium px-3 py-1.5 rounded-md hover:bg-gray-100">Hoy</button>
-<button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
-<span class="material-icons">chevron_right</span>
-</button>
-<h1 class="text-xl font-semibold text-gray-800">Jueves, 06 de mayo de 2024</h1>
-</div>
-<div class="flex items-center space-x-3">
-<button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
-<span class="material-icons">refresh</span>
-</button>
-<button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
-<span class="material-icons">view_agenda</span>
-</button>
-<button class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg flex items-center space-x-2 text-sm">
-<span class="material-icons text-base">add</span>
-<span>Nuevo</span>
-</button>
-</div>
-</header>
-<div class="flex-1 overflow-x-auto overflow-y-auto bg-white">
-<div class="calendar-grid min-w-max">
-<div class="sticky top-0 bg-white z-10 p-2 border-b border-r border-gray-200">
-<span class="material-icons text-gray-500">schedule</span>
-</div>
-<div class="sticky top-0 bg-white z-10 p-3 border-b border-r border-gray-200 text-center">
-<img alt="Matias Garcia" class="w-10 h-10 rounded-full mx-auto mb-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdTmiIChqV7K5c_uL4fd19VPFExyPfKZjhR8lFim7VO3FGv906DJ4G18Z8Or3TTNuj2QaXQ0tWHpAVn1gCqAXTDlsYhqHRRh7jP-qs2IhLlTbnWitSwouv-SDwuJcLxlVQFvJMex0EkIMqT6eagLTr7kTwAoDhOdf9ZOECZI9rRYLeK4mOobhMCOYWc1EuOykdUQsPZm_a3V0m2SIQd2lR4VNLcyhpBNyPJ8RIcyrHFt5pQ_Rr8bfO0_HGvK-j67ZBlwxOuNXaQjE"/>
-<p class="text-sm font-medium text-gray-800">Matias Garcia</p>
-<p class="text-xs text-gray-500">Psicólogo</p>
-</div>
-<div class="sticky top-0 bg-white z-10 p-3 border-b border-r border-gray-200 text-center">
-<img alt="Sofia Reyes" class="w-10 h-10 rounded-full mx-auto mb-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtZuO-XUiLFd-IlnYSv0DIFsyxYxE58bKu-mjxuzgo9QDEx2AXjGBaeTmbv5m-Gvdyqj0UZZUTS2nqhSqMAMHAfu56xnsGD52JIfTZGDqaXzIXnb4-66fba9YD6h5KTIpfGhveVuMCkA2SFSHOAHSTxwv6euW8C4XuaPm5QPzMkZonYRYCzSjwZyurF0J23tnYse-XTmCllgiSj17tEkTK4siHctiXbhMAisXZLyXyoeUUd9_cK929Jj96apzqyr8txyx22YdPK7w"/>
-<p class="text-sm font-medium text-gray-800">Sofia Reyes</p>
-<p class="text-xs text-gray-500">Terapeuta Ocupacional</p>
-</div>
-<div class="sticky top-0 bg-white z-10 p-3 border-b border-r border-gray-200 text-center">
-<img alt="Andrea Fuenzalida" class="w-10 h-10 rounded-full mx-auto mb-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNbbPG7m2eSZXHzB279G_uSuMQ__k9EfjcM8h5fQ-zBI-KnQZotO6Wyuenw_dgZVyNpG8BkyYyex-K9kY9ZkDXT-rin-5mXSrnxGTJqOhye2lXHSqbdE9hFO7ZafMhrLrdh7sasw0qKa2M_jqDPoAWMwZTwqSM4RXjsPKRZS7rHYIuWZ_3FI7jlFonKf-PXT9eOZ_x_7wm6-l99a2N7ov2iAJgmgm1iG7Lhxci16wo_NoEToXBXlNZpOADc8LkNlKA_eNKMa0Jq0g"/>
-<p class="text-sm font-medium text-gray-800">Andrea Fuenzalida</p>
-<p class="text-xs text-gray-500">Psiquiatra</p>
-</div>
-<div class="sticky top-0 bg-white z-10 p-3 border-b border-r border-gray-200 text-center">
-<img alt="Catalina Fuentes" class="w-10 h-10 rounded-full mx-auto mb-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdM0p4XuIubAv4J-q_tOklKSPqAczm8p4BWOwXZHKQO8Z6PxwYjP6C2SxVr3bUgl6p8H8NIAoPZVUvT7iNSadZi0o0_d3QAJAVntp6AGTf4Yjj5jow0YzT07C4NmACdkJ7gwsHyYHyGi8yq8Y5hai5Pv24oVLtuhDbPBVY0XP8SrCm5SELxF0DFrzI0Ye2PPQhWfEzcCzpjuSPCMa3YMBLcvX0mbOs87xvdBY0oudijTEi_51qO3_z04r7Jhr10wb0usl0fizmTRA"/>
-<p class="text-sm font-medium text-gray-800">Catalina Fuentes</p>
-<p class="text-xs text-gray-500">Psicóloga Infantil</p>
-</div>
-<div class="sticky top-0 bg-white z-10 p-3 border-b border-gray-200 text-center">
-<img alt="Gabriel Ortiz" class="w-10 h-10 rounded-full mx-auto mb-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFtWvY1_a0EIProGT9jxFlsveAKV00ZufW0-lNaf-sdNrlBVLt8jABpQkVXrLDuZzpQDFvyKQAxbQtlM1s4Bv07Q0-LWV7kmwZ_33lUA-7687osRueGUT7Rs0QVOZrf9C9NBcxG6LlYYStkzP_OROngVG5YI4CJVBdh2aqcmmuIJPNGJxPM5nT_b6DuH9RkBEvFgSQfHuTUbSKeFX4k4laZq-vUBU39wF9svK_ob-7Lr9Ug0692LMQe4V4dMzzqRH24OXjJOjI6vg"/>
-<p class="text-sm font-medium text-gray-800">Gabriel Ortiz</p>
-<p class="text-xs text-gray-500">Kinesiólogo</p>
-</div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">8:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1"></div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">9:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100 rounded-md">
-<div class="bg-green-500 text-white text-xs p-1 rounded-t-md">Patricia Fuenzalida</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Tratamiento primera cita</p>
-<p class="text-gray-600">9:00 - 11:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-green-100 rounded-md">
-<div class="bg-green-500 text-white text-xs p-1 rounded-t-md">Macarena Rial</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Primera cita</p>
-<p class="text-gray-600">9:00 - 10:00</p>
-</div>
-</div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">10:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100 rounded-md">
-<div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Bárbara Troncoso</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Sesión grupal número 3</p>
-<p class="text-gray-600">10:00 - 12:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-pink-100 rounded-md">
-<div class="bg-pink-500 text-white text-xs p-1 rounded-t-md">Laila Serrano</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Segunda cita</p>
-<p class="text-gray-600">10:00 - 11:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-gray-200 p-1"></div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">11:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-yellow-100 rounded-md relative">
-<div class="bg-yellow-500 text-white text-xs p-1 rounded-t-md">Antonia Cardona</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Clase personalizada</p>
-<p class="text-gray-600">11:00 - 13:00</p>
-</div>
-<div class="absolute z-20 left-full top-0 ml-2 w-80 bg-white rounded-lg shadow-xl p-4 border border-gray-200" id="appointmentModal">
-<div class="flex justify-between items-center mb-3">
-<h3 class="text-base font-semibold text-gray-800">Antonia Cardona</h3>
-<div class="flex space-x-2">
-<button class="text-gray-500 hover:text-gray-700"><span class="material-icons text-lg">edit</span></button>
-<button class="text-gray-500 hover:text-gray-700"><span class="material-icons text-lg">delete</span></button>
-<button class="text-gray-500 hover:text-gray-700"><span class="material-icons text-lg">close</span></button>
-</div>
-</div>
-<p class="text-sm text-gray-600 mb-1">Clase personalizada</p>
-<p class="text-xs text-gray-500 mb-3">Jueves 06 de mayo - 11:00 a 13:00 hrs</p>
-<p class="text-xs text-gray-500 mb-3">Se atenderá con: Sofia Reyes</p>
-<div class="flex items-center space-x-2 text-sm text-gray-700 mb-2">
-<span class="material-icons text-base text-gray-500">phone</span>
-<span>+569 1234 567</span>
-<button class="text-green-500 hover:text-green-600 text-xs font-medium flex items-center">
-<span class="material-icons text-sm mr-1">chat_bubble_outline</span> Hablar por WhatsApp
-                    </button>
-</div>
-<div class="flex items-center space-x-2 text-sm text-gray-700 mb-3">
-<span class="material-icons text-base text-gray-500">email</span>
-<span>antocardona@gmail.com</span>
-</div>
-<p class="text-xs text-gray-500 mb-1">Comentario interno</p>
-<p class="text-sm text-gray-700 mb-3 bg-gray-50 p-2 rounded-md">Ana prefiere estacionar en el -1</p>
-<div class="flex items-center justify-between text-sm mb-3">
-<div class="flex items-center space-x-1">
-<span class="material-icons text-blue-500 text-base">bookmark</span>
-<span class="text-blue-500 font-medium">Reservado</span>
-</div>
-<div class="flex space-x-1">
-<span class="w-3 h-3 bg-green-400 rounded-full"></span>
-<span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
-<span class="w-3 h-3 bg-pink-400 rounded-full"></span>
-<span class="w-3 h-3 bg-red-400 rounded-full"></span>
-</div>
-</div>
-<div class="flex justify-between">
-<button class="text-red-600 hover:text-red-700 font-medium text-sm">$ Pagar</button>
-<button class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-md text-sm flex items-center">
-                        Ir a la ficha <span class="material-icons text-sm ml-1">arrow_forward</span>
-</button>
-</div>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-blue-100 rounded-md">
-<div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Eloi Zurita</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Tratamiento segunda cita</p>
-<p class="text-gray-600">11:00 - 13:00</p>
-</div>
-</div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">12:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-yellow-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-blue-100"></div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">13:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-yellow-100 rounded-md">
-<div class="bg-yellow-500 text-white text-xs p-1 rounded-t-md">Gustavo Florez</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Tercera cita</p>
-<p class="text-gray-600">13:00 - 15:00</p>
-</div>
-</div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">14:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100 rounded-md">
-<div class="bg-green-500 text-white text-xs p-1 rounded-t-md">Jose Molero</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Primera cita</p>
-<p class="text-gray-600">14:00 - 16:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-yellow-100"></div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">15:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100 rounded-md">
-<div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Felix Nieto</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Sesión individual</p>
-<p class="text-gray-600">15:00 - 17:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1"></div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">16:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-pink-100 rounded-md">
-<div class="bg-pink-500 text-white text-xs p-1 rounded-t-md">Alberto Sanchis</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Sesión individual</p>
-<p class="text-gray-600">16:00 - 18:00</p>
-</div>
-</div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">17:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-pink-100 rounded-md">
-<div class="bg-pink-500 text-white text-xs p-1 rounded-t-md">Ricardo Quevedo</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Tratamiento segunda cita</p>
-<p class="text-gray-600">17:00 - 19:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100 rounded-md">
-<div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Consulta personalizada</div>
-<div class="p-1 text-xs">
-<p class="text-gray-600">18:00 - 20:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-pink-100"></div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">18:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-pink-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1"></div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">19:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-yellow-100 rounded-md">
-<div class="bg-yellow-500 text-white text-xs p-1 rounded-t-md">Ferran Santana</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Clase</p>
-<p class="text-gray-600">19:00 - 20:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100 rounded-md">
-<div class="bg-green-500 text-white text-xs p-1 rounded-t-md">Maria Eva Casal</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Segunda cita</p>
-<p class="text-gray-600">19:00 - 21:00</p>
-</div>
-</div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-blue-100 rounded-md">
-<div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Xabier Marques</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Segunda cita</p>
-<p class="text-gray-600">19:00 - 21:00</p>
-</div>
-</div>
-<div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">20:00</div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot border-b border-gray-200 p-1 bg-blue-100"></div>
-<div class="time-slot-30 text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">21:00</div>
-<div class="time-slot-30 border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot-30 border-b border-r border-gray-200 p-1 bg-green-100"></div>
-<div class="time-slot-30 border-b border-r border-gray-200 p-1"></div>
-<div class="time-slot-30 border-b border-r border-gray-200 p-1 bg-pink-100 rounded-b-md">
-<div class="bg-pink-500 text-white text-xs p-1 rounded-t-md">Camila Rodriguez</div>
-<div class="p-1 text-xs">
-<p class="font-medium">Primera cita</p>
-<p class="text-gray-600">21:00 - 21:30</p>
-</div>
-</div>
-<div class="time-slot-30 border-b border-gray-200 p-1 bg-blue-100"></div>
-</div>
-</div>
-</main>
 
-</body></html>
+<body class="flex h-screen overflow-hidden">
+  <aside class="w-80 bg-white p-6 border-r border-gray-200 overflow-y-auto">
+    <div class="flex items-center justify-between mb-6">
+      <img alt="Logo de la clínica" class="h-8"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUcpFjg0lkRM3zshHtmKv00LDZMLCwOoHXRywFk4n284ESlCMNKOUHvTLhPbpkNXtPP4iF2xk8XHXDxjSxGa68EiM3XooXOO0mXAkASdOhPBKT_YEku-GoDTgepJpxCB2yHTUOgWuwCGL8HKHGaBj5WAgXXMUNwNIpAeGPH9oGQWib7cgAyqk3HenLrvkGLPM8PDs0aEnH2nU24md7y0gOrAj328GcQtZqr15TQGVSBFD9_xf5GrD9HkmbXou2BNuoMFtvVBIzBto" />
+      <button class="text-gray-500 hover:text-gray-700">
+        <span class="material-icons">menu</span>
+      </button>
+    </div>
+    <h2 class="text-sm font-medium text-gray-500 mb-2">Selecciona la sucursal</h2>
+    <div class="relative mb-6">
+      <select
+        class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8">
+        <option selected="">Sucursal casa matriz</option>
+        <option>Sucursal Providencia</option>
+        <option>Sucursal Las Condes</option>
+      </select>
+      <span
+        class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+    </div>
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Agendas</h2>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="profesional_filter">Profesional</label>
+        <div class="relative">
+          <select
+            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8"
+            id="profesional_filter">
+            <option selected="">Todos</option>
+            <option>Matias Garcia</option>
+            <option>Sofia Reyes</option>
+          </select>
+          <span
+            class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-1">
+        <img alt="Avatar profesional 1" class="w-8 h-8 rounded-full"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvI7H3It-cg0H2bniW5woUS04n92XrPRJWrGK6FmYzLb0bHOdRo_XehJlvu1x7c58J6nkBNTK3ZaPHnpG5ICwYzCxCdBconjzQW8roWQQT4IiB9um4RiruCfNv408jdwGWkRMqI-SGDfw5YDWRzu1hfpwfnB24kpxTow3NtURXaesRpxUtA8g1HWRA_6gjCpYAtn0SO-iZv5dcS35Lg0XJ5p6wnJ4ZP-NUhMyy5CT4Bs6_q9FvRpfAeWQBMfw1HrNtzQ7r73pwXCA" />
+        <img alt="Avatar profesional 2" class="w-8 h-8 rounded-full"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhCZOm_T5XEGEcHAfLt-2_Mxr10db8ujsH0F7xVM5qiLbgdjf2zYo7C-b_C8tlyt7DQzM23hiXwFVqHzvoZ0n9c6jsoFl6Bh-PyOFA198td0rOOPvMF01qrF5hZM2f1FVg_chyAkVZ89gusV6Q973ZMztKagehdk_64DaclItWYNW_T-OmvHEt8evcWPC7qV2QOGwjwLTimklNqzg9NuzxUyxCx_Bzzz-rnrAUPPUrwaXvLEM9YuDc3FKsrC1zSFmiovjZy2RSiIM" />
+        <img alt="Avatar profesional 3" class="w-8 h-8 rounded-full"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcfVCKlSsc6Slg08bEhPdEnBWS2HDShb399vmfnk8RO1tZ8TDrajzt5A9UZDveR-kbUo1nmg8EqyVE6T1dhaW5HgKk4x-wpXtKvl0aM3RUxz9ErrYKlerRcP9RYeCoMKHsJEbznVkEqYvRYROINafzj9jpj2qWeAYsbZ0XMpGalC4pUo2ePEo-QhaPnaQujYklu8XLth7VFErMhCtAYsMFVXLm5VcmJVOOKNIlSGsEWtdHtmuLnRKIqGeM9-W1KD6S8qr65Wewf9Y" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="estado_reserva_filter">Estado de la
+          reserva</label>
+        <div class="relative">
+          <select
+            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8"
+            id="estado_reserva_filter">
+            <option selected="">Todos</option>
+            <option>Confirmado</option>
+            <option>Pendiente</option>
+            <option>Cancelado</option>
+            <option>No asistió</option>
+          </select>
+          <span
+            class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="tipo_cita_filter">Reservas activas</label>
+        <div class="relative">
+          <select
+            class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8"
+            id="tipo_cita_filter">
+            <option selected="">Todas</option>
+            <option>Primera</option>
+            <option>Control</option>
+            <option>Grupal</option>
+          </select>
+          <span
+            class="material-icons absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+        </div>
+      </div>
+      <div class="relative">
+        <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
+        <input
+          class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block pl-10 p-2.5"
+          placeholder="Búsqueda rápida de hora" type="text" />
+      </div>
+    </div>
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-semibold text-gray-800">Mayo 2024</h3>
+        <div class="flex space-x-1">
+          <button class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
+            <span class="material-icons text-base">chevron_left</span>
+          </button>
+          <button class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
+            <span class="material-icons text-base">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-600">
+        <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
+        <span class="text-gray-400">26</span><span class="text-gray-400">27</span><span
+          class="text-gray-400">28</span><span class="text-gray-400">29</span><span
+          class="text-gray-400">30</span><span>1</span><span>2</span>
+        <span>3</span><span>4</span><span>5</span><span
+          class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mx-auto">6</span><span>7</span><span>8</span><span>9</span>
+        <span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
+        <span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+        <span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
+        <span>31</span><span class="text-gray-400">1</span><span class="text-gray-400">2</span><span
+          class="text-gray-400">3</span><span class="text-gray-400">4</span><span class="text-gray-400">5</span><span
+          class="text-gray-400">6</span>
+      </div>
+    </div>
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-semibold text-gray-800">Junio 2024</h3>
+        <div class="flex space-x-1">
+          <button class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
+            <span class="material-icons text-base">chevron_left</span>
+          </button>
+          <button class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
+            <span class="material-icons text-base">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-600">
+        <span class="text-gray-400">27</span> <span class="text-gray-400">28</span> <span
+          class="text-gray-400">29</span> <span class="text-gray-400">30</span> <span class="text-gray-400">31</span>
+        <span>1</span> <span>2</span>
+        <span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+        <span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
+        <span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+        <span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
+      </div>
+    </div>
+  </aside>
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <header class="bg-white p-4 border-b border-gray-200 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
+          <span class="material-icons">chevron_left</span>
+        </button>
+        <button
+          class="text-gray-600 hover:text-gray-800 font-medium px-3 py-1.5 rounded-md hover:bg-gray-100">Hoy</button>
+        <button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
+          <span class="material-icons">chevron_right</span>
+        </button>
+        <h1 class="text-xl font-semibold text-gray-800">Jueves, 06 de mayo de 2024</h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
+          <span class="material-icons">refresh</span>
+        </button>
+        <button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
+          <span class="material-icons">view_agenda</span>
+        </button>
+        <button
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg flex items-center space-x-2 text-sm">
+          <span class="material-icons text-base">add</span>
+          <span>Nuevo</span>
+        </button>
+      </div>
+    </header>
+    <div class="flex-1 overflow-x-auto overflow-y-auto bg-white">
+      <div class="calendar-grid min-w-max">
+        <div class="sticky top-0 bg-white z-10 p-2 border-b border-r border-gray-200">
+          <span class="material-icons text-gray-500">schedule</span>
+        </div>
+        <div class="sticky top-0 bg-white z-10 p-3 border-b border-r border-gray-200 text-center">
+          <img alt="Matias Garcia" class="w-10 h-10 rounded-full mx-auto mb-1"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdTmiIChqV7K5c_uL4fd19VPFExyPfKZjhR8lFim7VO3FGv906DJ4G18Z8Or3TTNuj2QaXQ0tWHpAVn1gCqAXTDlsYhqHRRh7jP-qs2IhLlTbnWitSwouv-SDwuJcLxlVQFvJMex0EkIMqT6eagLTr7kTwAoDhOdf9ZOECZI9rRYLeK4mOobhMCOYWc1EuOykdUQsPZm_a3V0m2SIQd2lR4VNLcyhpBNyPJ8RIcyrHFt5pQ_Rr8bfO0_HGvK-j67ZBlwxOuNXaQjE" />
+          <p class="text-sm font-medium text-gray-800">Matias Garcia</p>
+          <p class="text-xs text-gray-500">Psicólogo</p>
+        </div>
+        <div class="sticky top-0 bg-white z-10 p-3 border-b border-r border-gray-200 text-center">
+          <img alt="Sofia Reyes" class="w-10 h-10 rounded-full mx-auto mb-1"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtZuO-XUiLFd-IlnYSv0DIFsyxYxE58bKu-mjxuzgo9QDEx2AXjGBaeTmbv5m-Gvdyqj0UZZUTS2nqhSqMAMHAfu56xnsGD52JIfTZGDqaXzIXnb4-66fba9YD6h5KTIpfGhveVuMCkA2SFSHOAHSTxwv6euW8C4XuaPm5QPzMkZonYRYCzSjwZyurF0J23tnYse-XTmCllgiSj17tEkTK4siHctiXbhMAisXZLyXyoeUUd9_cK929Jj96apzqyr8txyx22YdPK7w" />
+          <p class="text-sm font-medium text-gray-800">Sofia Reyes</p>
+          <p class="text-xs text-gray-500">Terapeuta Ocupacional</p>
+        </div>
+        <div class="sticky top-0 bg-white z-10 p-3 border-b border-r border-gray-200 text-center">
+          <img alt="Andrea Fuenzalida" class="w-10 h-10 rounded-full mx-auto mb-1"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNbbPG7m2eSZXHzB279G_uSuMQ__k9EfjcM8h5fQ-zBI-KnQZotO6Wyuenw_dgZVyNpG8BkyYyex-K9kY9ZkDXT-rin-5mXSrnxGTJqOhye2lXHSqbdE9hFO7ZafMhrLrdh7sasw0qKa2M_jqDPoAWMwZTwqSM4RXjsPKRZS7rHYIuWZ_3FI7jlFonKf-PXT9eOZ_x_7wm6-l99a2N7ov2iAJgmgm1iG7Lhxci16wo_NoEToXBXlNZpOADc8LkNlKA_eNKMa0Jq0g" />
+          <p class="text-sm font-medium text-gray-800">Andrea Fuenzalida</p>
+          <p class="text-xs text-gray-500">Psiquiatra</p>
+        </div>
+        <div class="sticky top-0 bg-white z-10 p-3 border-b border-r border-gray-200 text-center">
+          <img alt="Catalina Fuentes" class="w-10 h-10 rounded-full mx-auto mb-1"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdM0p4XuIubAv4J-q_tOklKSPqAczm8p4BWOwXZHKQO8Z6PxwYjP6C2SxVr3bUgl6p8H8NIAoPZVUvT7iNSadZi0o0_d3QAJAVntp6AGTf4Yjj5jow0YzT07C4NmACdkJ7gwsHyYHyGi8yq8Y5hai5Pv24oVLtuhDbPBVY0XP8SrCm5SELxF0DFrzI0Ye2PPQhWfEzcCzpjuSPCMa3YMBLcvX0mbOs87xvdBY0oudijTEi_51qO3_z04r7Jhr10wb0usl0fizmTRA" />
+          <p class="text-sm font-medium text-gray-800">Catalina Fuentes</p>
+          <p class="text-xs text-gray-500">Psicóloga Infantil</p>
+        </div>
+        <div class="sticky top-0 bg-white z-10 p-3 border-b border-gray-200 text-center">
+          <img alt="Gabriel Ortiz" class="w-10 h-10 rounded-full mx-auto mb-1"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFtWvY1_a0EIProGT9jxFlsveAKV00ZufW0-lNaf-sdNrlBVLt8jABpQkVXrLDuZzpQDFvyKQAxbQtlM1s4Bv07Q0-LWV7kmwZ_33lUA-7687osRueGUT7Rs0QVOZrf9C9NBcxG6LlYYStkzP_OROngVG5YI4CJVBdh2aqcmmuIJPNGJxPM5nT_b6DuH9RkBEvFgSQfHuTUbSKeFX4k4laZq-vUBU39wF9svK_ob-7Lr9Ug0692LMQe4V4dMzzqRH24OXjJOjI6vg" />
+          <p class="text-sm font-medium text-gray-800">Gabriel Ortiz</p>
+          <p class="text-xs text-gray-500">Kinesiólogo</p>
+        </div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">8:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1"></div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">9:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100 rounded-md">
+          <div class="bg-green-500 text-white text-xs p-1 rounded-t-md">Patricia Fuenzalida</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Tratamiento primera cita</p>
+            <p class="text-gray-600">9:00 - 11:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-green-100 rounded-md">
+          <div class="bg-green-500 text-white text-xs p-1 rounded-t-md">Macarena Rial</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Primera cita</p>
+            <p class="text-gray-600">9:00 - 10:00</p>
+          </div>
+        </div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">10:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100 rounded-md">
+          <div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Bárbara Troncoso</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Sesión grupal número 3</p>
+            <p class="text-gray-600">10:00 - 12:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-pink-100 rounded-md">
+          <div class="bg-pink-500 text-white text-xs p-1 rounded-t-md">Laila Serrano</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Segunda cita</p>
+            <p class="text-gray-600">10:00 - 11:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-gray-200 p-1"></div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">11:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-yellow-100 rounded-md relative">
+          <div class="bg-yellow-500 text-white text-xs p-1 rounded-t-md">Antonia Cardona</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Clase personalizada</p>
+            <p class="text-gray-600">11:00 - 13:00</p>
+          </div>
+          <div class="absolute z-20 left-full top-0 ml-2 w-80 bg-white rounded-lg shadow-xl p-4 border border-gray-200"
+            id="appointmentModal">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-base font-semibold text-gray-800">Antonia Cardona</h3>
+              <div class="flex space-x-2">
+                <button class="text-gray-500 hover:text-gray-700"><span
+                    class="material-icons text-lg">edit</span></button>
+                <button class="text-gray-500 hover:text-gray-700"><span
+                    class="material-icons text-lg">delete</span></button>
+                <button class="text-gray-500 hover:text-gray-700"><span
+                    class="material-icons text-lg">close</span></button>
+              </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-1">Clase personalizada</p>
+            <p class="text-xs text-gray-500 mb-3">Jueves 06 de mayo - 11:00 a 13:00 hrs</p>
+            <p class="text-xs text-gray-500 mb-3">Se atenderá con: Sofia Reyes</p>
+            <div class="flex items-center space-x-2 text-sm text-gray-700 mb-2">
+              <span class="material-icons text-base text-gray-500">phone</span>
+              <span>+569 1234 567</span>
+              <button class="text-green-500 hover:text-green-600 text-xs font-medium flex items-center">
+                <span class="material-icons text-sm mr-1">chat_bubble_outline</span> Hablar por WhatsApp
+              </button>
+            </div>
+            <div class="flex items-center space-x-2 text-sm text-gray-700 mb-3">
+              <span class="material-icons text-base text-gray-500">email</span>
+              <span>antocardona@gmail.com</span>
+            </div>
+            <p class="text-xs text-gray-500 mb-1">Comentario interno</p>
+            <p class="text-sm text-gray-700 mb-3 bg-gray-50 p-2 rounded-md">Ana prefiere estacionar en el -1</p>
+            <div class="flex items-center justify-between text-sm mb-3">
+              <div class="flex items-center space-x-1">
+                <span class="material-icons text-blue-500 text-base">bookmark</span>
+                <span class="text-blue-500 font-medium">Reservado</span>
+              </div>
+              <div class="flex space-x-1">
+                <span class="w-3 h-3 bg-green-400 rounded-full"></span>
+                <span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
+                <span class="w-3 h-3 bg-pink-400 rounded-full"></span>
+                <span class="w-3 h-3 bg-red-400 rounded-full"></span>
+              </div>
+            </div>
+            <div class="flex justify-between">
+              <button class="text-red-600 hover:text-red-700 font-medium text-sm">$ Pagar</button>
+              <button
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-md text-sm flex items-center">
+                Ir a la ficha <span class="material-icons text-sm ml-1">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-blue-100 rounded-md">
+          <div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Eloi Zurita</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Tratamiento segunda cita</p>
+            <p class="text-gray-600">11:00 - 13:00</p>
+          </div>
+        </div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">12:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-yellow-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-blue-100"></div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">13:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-yellow-100 rounded-md">
+          <div class="bg-yellow-500 text-white text-xs p-1 rounded-t-md">Gustavo Florez</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Tercera cita</p>
+            <p class="text-gray-600">13:00 - 15:00</p>
+          </div>
+        </div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">14:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100 rounded-md">
+          <div class="bg-green-500 text-white text-xs p-1 rounded-t-md">Jose Molero</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Primera cita</p>
+            <p class="text-gray-600">14:00 - 16:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-yellow-100"></div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">15:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100 rounded-md">
+          <div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Felix Nieto</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Sesión individual</p>
+            <p class="text-gray-600">15:00 - 17:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1"></div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">16:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-pink-100 rounded-md">
+          <div class="bg-pink-500 text-white text-xs p-1 rounded-t-md">Alberto Sanchis</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Sesión individual</p>
+            <p class="text-gray-600">16:00 - 18:00</p>
+          </div>
+        </div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">17:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-pink-100 rounded-md">
+          <div class="bg-pink-500 text-white text-xs p-1 rounded-t-md">Ricardo Quevedo</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Tratamiento segunda cita</p>
+            <p class="text-gray-600">17:00 - 19:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100 rounded-md">
+          <div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Consulta personalizada</div>
+          <div class="p-1 text-xs">
+            <p class="text-gray-600">18:00 - 20:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-pink-100"></div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">18:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-pink-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1"></div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">19:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-yellow-100 rounded-md">
+          <div class="bg-yellow-500 text-white text-xs p-1 rounded-t-md">Ferran Santana</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Clase</p>
+            <p class="text-gray-600">19:00 - 20:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100 rounded-md">
+          <div class="bg-green-500 text-white text-xs p-1 rounded-t-md">Maria Eva Casal</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Segunda cita</p>
+            <p class="text-gray-600">19:00 - 21:00</p>
+          </div>
+        </div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-blue-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-blue-100 rounded-md">
+          <div class="bg-blue-500 text-white text-xs p-1 rounded-t-md">Xabier Marques</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Segunda cita</p>
+            <p class="text-gray-600">19:00 - 21:00</p>
+          </div>
+        </div>
+        <div class="time-slot text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">20:00</div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1 bg-green-100"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot border-b border-gray-200 p-1 bg-blue-100"></div>
+        <div class="time-slot-30 text-xs text-gray-500 p-2 border-b border-r border-gray-200 text-right">21:00</div>
+        <div class="time-slot-30 border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot-30 border-b border-r border-gray-200 p-1 bg-green-100"></div>
+        <div class="time-slot-30 border-b border-r border-gray-200 p-1"></div>
+        <div class="time-slot-30 border-b border-r border-gray-200 p-1 bg-pink-100 rounded-b-md">
+          <div class="bg-pink-500 text-white text-xs p-1 rounded-t-md">Camila Rodriguez</div>
+          <div class="p-1 text-xs">
+            <p class="font-medium">Primera cita</p>
+            <p class="text-gray-600">21:00 - 21:30</p>
+          </div>
+        </div>
+        <div class="time-slot-30 border-b border-gray-200 p-1 bg-blue-100"></div>
+      </div>
+    </div>
+  </main>
+
+</body>
+
+</html>

@@ -11,3 +11,19 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+
+
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: auto repeat(5, 1fr);
+    }
+
+    .time-slot {
+      height: 60px;
+    }
+
+    .time-slot-30 {
+      height: 30px;
+    }

@@ -1,4 +1,5 @@
-import HeaderLogin from '../../components/HeaderLogin';
+import HeaderLogin from '../../../components/HeaderLogin';
+import FooterLogin from '../../../components/FooterLogin';
 
 export const metadata = {
   title: 'Iniciar Sesión | Agendame',
@@ -10,6 +11,7 @@ export default function AuthLayout({ children }) {
     <>
       <HeaderLogin />
       <main className="min-h-screen">{children}</main>
+      <FooterLogin />
     </>
   );
 }

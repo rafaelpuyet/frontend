@@ -7,7 +7,7 @@ const notoSans = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '700', '
 export default function FooterLogin() {
   return (
     <footer
-      className={`flex justify-center bg-gray-800 text-gray-500 py-6 px-2 sm:px-4 sm:py-8 lg:px-6 lg:py-10 ${inter.className} ${notoSans.className}`}
+      className={`flex justify-center text-gray-500 py-6 px-2 sm:px-4 sm:py-8 lg:px-6 lg:py-10 ${inter.className} ${notoSans.className}`}
     >
       <div className="flex flex-col gap-3 text-center max-w-[960px] w-full">
         <p className="text-sm font-normal sm:text-base">
