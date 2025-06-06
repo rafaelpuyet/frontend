@@ -9,7 +9,6 @@ export const metadata = {
 export default function AuthLayout({ children }) {
   return (
     <>
-      <HeaderLogin />
       <main className="min-h-screen">{children}</main>
       <FooterLogin />
     </>

@@ -12,10 +12,12 @@ export default function Header() {
 
   return (
     <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 text-gray-900 sm:px-6 md:px-10">
-      <div className="flex items-center gap-3">
-        <i className="fas fa-calendar-alt text-gray-900 text-lg"></i>
-        <h2 className="text-lg font-bold text-gray-900">Agendame</h2>
-      </div>
+      <Link href="/">
+        <div className="flex items-center gap-3">
+          <i className="fas fa-calendar-alt text-gray-900 text-lg"></i>
+          <h2 className="text-lg font-bold text-gray-900">Agendame</h2>
+        </div>
+      </Link>
       <div className="flex items-center gap-4">
         {/* Hamburger Menu Button */}
         <button
@@ -27,9 +29,8 @@ export default function Header() {
         </button>
         {/* Navigation */}
         <nav
-          className={`${
-            isMenuOpen ? 'flex' : 'hidden'
-          } md:flex flex-col md:flex-row items-center gap-4 absolute md:static top-16 left-0 right-0 bg-white md:bg-transparent p-4 md:p-0 border-b md:border-0 border-gray-200 z-10`}
+          className={`${isMenuOpen ? 'flex' : 'hidden'
+            } md:flex flex-col md:flex-row items-center gap-4 absolute md:static top-16 left-0 right-0 bg-white md:bg-transparent p-4 md:p-0 border-b md:border-0 border-gray-200 z-10`}
         >
           <Link href="/" className="text-gray-900 text-sm font-medium hover:underline" onClick={() => setIsMenuOpen(false)}>
             Inicio
@@ -65,10 +66,10 @@ export default function Header() {
           </div>
         ) : (
           <Link
-            href="/register"
+            href="/login"
             className="flex items-center justify-center rounded-lg h-10 px-4 bg-[#1988ff] text-white text-sm font-bold"
           >
-            Regístrate Gratis
+            Iniciar sesión
           </Link>
         )}
       </div>
