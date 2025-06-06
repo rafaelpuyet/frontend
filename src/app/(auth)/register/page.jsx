@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '../../../context/AuthContext';
 import { Inter, Noto_Sans } from 'next/font/google';
-import { FaUserPlus, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaUserPlus, FaEye, FaEyeSlash, FaUser, FaBuilding } from 'react-icons/fa';
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 const notoSans = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 
 export default function Register() {
-  const { register } = useContext(AuthContext);
+  const { register } = useContext(AuthContext) || {};
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
@@ -58,9 +58,49 @@ export default function Register() {
     setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  const handleAccountType = (type) => {
-    setFormData({ ...formData, accountType: type });
+  const handleAccountType = async (type) => {
+    const updatedFormData = { ...formData, accountType: type };
+    setFormData(updatedFormData);
     setErrors({ ...errors, accountType: '' });
+
+    const isValid = validateStep(3);
+    if (!isValid) return;
+
+    setLoading(true);
+    try {
+      console.log('Sending registration request:', updatedFormData); // Debug log
+      if (typeof register !== 'function') {
+        console.warn('AuthContext register is not a function, falling back to direct fetch');
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedFormData),
+        });
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Registration failed');
+        }
+        const data = await response.json();
+        router.push('/appointments');
+        return data;
+      } else {
+        await register(
+          updatedFormData.email,
+          updatedFormData.password,
+          updatedFormData.username,
+          updatedFormData.firstName,
+          updatedFormData.lastName,
+          updatedFormData.accountType
+        );
+        router.push('/appointments');
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Error al registrarse. Intenta de nuevo.';
+      console.error('Registration error:', err); // Debug log
+      setErrors({ submit: errorMessage });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -80,36 +120,14 @@ export default function Register() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateStep(3)) return;
-    setLoading(true);
-
-    try {
-      await register(
-        formData.email,
-        formData.password,
-        formData.username,
-        formData.firstName,
-        formData.lastName,
-        formData.accountType
-      );
-      router.push('/appointments');
-    } catch (err) {
-      setErrors({ submit: err.response?.data?.error || 'Error al registrarse. Intenta de nuevo.' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const [step, setStep] = useState(1);
 
   return (
-    <div className={`relative flex min-h-screen flex-col bg-slate-50 ${inter.className} ${notoSans.className}`}>
-      <div className="flex flex-1 flex-col items-center justify-center py-4 px-2 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-10">
+    <div className={`relative flex min-h-screen flex-col bg-white ${inter.className} ${notoSans.className}`}>
+      <div className="flex flex-1 flex-col items-center justify-center py-4 px-2 sm:px-4 sm:py-6 md:px-6 py-8 lg:px-10">
         <div className="flex flex-col w-full max-w-[512px] gap-3 sm:gap-4">
-          <div className="flex items-center justify-center gap-2 pb-2 pt-4 sm:gap-3 sm:pb-3 sm:pt-5">
-            <FaUserPlus className="text-gray-900 text-lg sm:text-xl md:text-2xl" />
+          <div className="flex items-center justify-center gap-2 pb-6 pt-4 sm:gap-3 sm:pb-12 sm:pt-10">
+            <FaUserPlus className="text-gray-900 text-lg sm:text-sm md:text-2xl" />
             <h2 className="text-gray-900 text-xl font-bold leading-tight tracking-tight text-center sm:text-2xl md:text-3xl">
               Registrarse
             </h2>
@@ -119,12 +137,12 @@ export default function Register() {
               <>
                 <label className="flex flex-col gap-1">
                   <input
-                    type="email"
+                    type="text"
                     name="email"
                     placeholder="Correo electrónico"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
+                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:text-base py-3"
                     required
                   />
                   {errors.email && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.email}</p>}
@@ -137,7 +155,7 @@ export default function Register() {
                       placeholder="Contraseña"
                       value={formData.password}
                       onChange={handleChange}
-                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base pr-10"
+                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:text-base py-3 pr-10"
                       required
                     />
                     <button
@@ -161,79 +179,81 @@ export default function Register() {
                     placeholder="Nombre de usuario"
                     value={formData.username}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
+                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:text-base py-3"
                     required
                   />
                   {errors.username && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.username}</p>}
                 </label>
-                <label className="flex flex-col gap-1">
-                  <input
-                    type="text"
-                    name="firstName"
-                    placeholder="Nombre"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
-                    required
-                  />
-                  {errors.firstName && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.firstName}</p>}
-                </label>
-                <label className="flex flex-col gap-1">
-                  <input
-                    type="text"
-                    name="lastName"
-                    placeholder="Apellido"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
-                    required
-                  />
-                  {errors.lastName && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.lastName}</p>}
-                </label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <label className="flex flex-col gap-1 sm:w-1/2">
+                    <input
+                      type="text"
+                      name="firstName"
+                      placeholder="Nombre"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:text-base py-3"
+                      required
+                    />
+                    {errors.firstName && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.firstName}</p>}
+                  </label>
+                  <label className="flex flex-col gap-1 sm:w-1/2">
+                    <input
+                      type="text"
+                      name="lastName"
+                      placeholder="Apellido"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:text-base py-3"
+                      required
+                    />
+                    {errors.lastName && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.lastName}</p>}
+                  </label>
+                </div>
               </>
             )}
             {step === 3 && (
               <div className="flex flex-col gap-3">
                 <p className="text-gray-900 text-sm font-medium text-center sm:text-base">Selecciona el tipo de cuenta</p>
-                <div className="flex gap-3">
+                <div className="flex gap-3 justify-center">
                   <button
                     type="button"
                     onClick={() => handleAccountType('personal')}
-                    className={`rounded-xl p-5 font-bold flex flex-col mx-auto cursor-pointer ${
+                    disabled={loading}
+                    className={`rounded-xl p-5 font-bold flex flex-col items-center cursor-pointer ${
                       formData.accountType === 'personal' ? 'bg-blue-700 text-white' : 'bg-[#d7e1f3] text-[#121417] hover:bg-blue-700'
-                    }`}
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <i class="fa-solid fa-user text-2xl"></i>
-                    <span class="text-lg">Personal</span>
+                    <FaUser className="text-2xl mb-2" />
+                    <span className="text-lg">Personal</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleAccountType('business')}
-                    className={`rounded-xl p-5 font-bold flex flex-col mx-auto cursor-pointer ${
+                    disabled={loading}
+                    className={`rounded-xl p-5 font-bold flex flex-col items-center cursor-pointer ${
                       formData.accountType === 'business' ? 'bg-blue-700 text-white' : 'bg-[#d7e1f3] text-[#121417] hover:bg-blue-700'
-                    }`}
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <i class="fa-solid fa-store text-2xl"></i>
-                    <span class="text-lg">Negocio</span>
+                    <FaBuilding className="text-2xl mb-2" />
+                    <span className="text-lg">Negocio</span>
                   </button>
                 </div>
                 {errors.accountType && <p className="text-red-500 text-xs font-normal text-center sm:text-sm">{errors.accountType}</p>}
+                {errors.submit && <p className="text-red-500 text-xs font-normal text-center sm:text-sm">{errors.submit}</p>}
               </div>
             )}
-            {errors.submit && (
-              <p className="text-red-500 text-xs font-normal text-center sm:text-sm">{errors.submit}</p>
-            )}
-            <div className="flex gap-3">
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="flex w-full items-center justify-center rounded-xl h-10 px-3 text-sm font-bold bg-gray-300 text-gray-900 hover:bg-gray-400 sm:h-12 sm:px-4 sm:text-base md:h-14 md:text-lg cursor-pointer"
-                >
-                  Atrás
-                </button>
-              )}
-              {step < 3 ? (
+            {step < 3 && (
+              <div className="flex gap-3">
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="flex w-full items-center justify-center rounded-xl h-10 px-3 text-sm font-bold bg-gray-300 text-gray-900 hover:bg-gray-400 sm:h-12 sm:px-4 sm:text-base md:h-14 md:text-lg cursor-pointer"
+                  >
+                    Atrás
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={handleNext}
@@ -241,18 +261,9 @@ export default function Register() {
                 >
                   Siguiente
                 </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={loading}
-                  onClick={handleSubmit}
-                  className="flex w-full items-center justify-center rounded-xl h-10 px-3 text-sm font-bold bg-[#d7e1f3] text-[#121417] hover:bg-blue-700 disabled:bg-blue-400 cursor-pointer disabled:cursor-not-allowed sm:h-12 sm:px-4 sm:text-base md:h-14 md:text-lg"
-                >
-                  {loading ? 'Cargando...' : 'Registrarse'}
-                </button>
-              )}
-            </div>
-            <p className="text-gray-500 text-xs font-normal text-center sm:text-sm">
+              </div>
+            )}
+            <p className="text-gray-900 text-xs font-normal text-center sm:text-sm">
               ¿Ya tienes cuenta?{' '}
               <Link
                 href="/login"

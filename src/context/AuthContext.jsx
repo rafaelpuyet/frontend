@@ -1,52 +1,62 @@
 'use client';
 
-import { createContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import { createContext, useContext, useState } from 'react';
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      api
-        .get('/api/auth/user', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          setUser(response.data.user);
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          setLoading(false);
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
+  const register = async (email, password, username, firstName, lastName, accountType) => {
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, username, firstName, lastName, accountType }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Registration failed');
+      }
+      const data = await response.json();
+      setUser(data.user); // Assuming backend returns user data
+      return data;
+    } catch (err) {
+      throw new Error(err.message || 'Registration failed');
     }
-  }, []);
-
-  const login = async (identifier, password) => {
-    const response = await api.post('/api/auth/login', { identifier, password });
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(user);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-    setUser(null);
+  const login = async (email, password) => {
+    // Placeholder for login, based on /login page requirements
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Login failed');
+      }
+      const data = await response.json();
+      setUser(data.user);
+      return data;
+    } catch (err) {
+      throw new Error(err.message || 'Login failed');
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, register, login }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
