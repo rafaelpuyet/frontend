@@ -11,15 +11,17 @@ const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '700', '900'] }
 const notoSans = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 
 export default function Register() {
-  const { register } = useContext(AuthContext) || {};
+  const { register } = useContext(AuthContext);
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     username: '',
-    firstName: '',
-    lastName: '',
-    accountType: '',
+    name: '',
+    phone: '',
+    businessName: '',
+    logo: '',
+    isBusiness: false,
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -30,9 +32,11 @@ export default function Register() {
     email: 1,
     password: 1,
     username: 2,
-    firstName: 2,
-    lastName: 2,
-    accountType: 3,
+    name: 2,
+    phone: 2,
+    businessName: 3,
+    logo: 3,
+    isBusiness: 3,
   };
 
   const validateStep = (step, data) => {
@@ -45,24 +49,21 @@ export default function Register() {
         newErrors.password = 'La contraseña debe tener al menos 8 caracteres, solo letras y números.';
       }
     } else if (step === 2) {
-      if (!data.username.match(/^[a-zA-Z0-9_-]{3,20}$/)) {
-        newErrors.username = 'El nombre de usuario debe tener 3-20 caracteres, solo letras, números, guiones o subrayados.';
+      if (!data.username.match(/^[a-zA-Z0-9-]{3,50}$/)) {
+        newErrors.username = 'El nombre de usuario debe tener 3-50 caracteres, solo letras, números o guiones.';
       }
-      if (!data.firstName.match(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,50}$/)) {
-        newErrors.firstName = 'El nombre debe tener 2-50 caracteres, solo letras.';
-      }
-      if (!data.lastName.match(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,50}$/)) {
-        newErrors.lastName = 'El apellido debe tener 2-50 caracteres, solo letras.';
+      if (!data.isBusiness && !data.name.match(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,100}$/)) {
+        newErrors.name = 'El nombre debe tener 2-100 caracteres, solo letras.';
       }
     } else if (step === 3) {
-      if (!data.accountType) {
-        newErrors.accountType = 'Selecciona un tipo de cuenta.';
+      if (!data.isBusiness && !data.name) {
+        newErrors.name = 'El nombre es obligatorio para cuentas personales.';
+      }
+      if (data.businessName && !data.businessName.match(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,100}$/)) {
+        newErrors.businessName = 'El nombre del negocio debe tener 2-100 caracteres, solo letras.';
       }
     }
     setErrors(newErrors);
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Validation:', { step, data, errors: newErrors });
-    }
     return Object.keys(newErrors).length === 0;
   };
 
@@ -72,8 +73,8 @@ export default function Register() {
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  const handleAccountType = async (type) => {
-    const updatedFormData = { ...formData, accountType: type };
+  const handleAccountType = async (isBusiness) => {
+    const updatedFormData = { ...formData, isBusiness };
     setFormData(updatedFormData);
 
     const isValid = validateStep(3, updatedFormData);
@@ -81,48 +82,25 @@ export default function Register() {
 
     setLoading(true);
     try {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Sending registration request:', updatedFormData);
-      }
-      let response;
-      if (typeof register !== 'function') {
-        console.warn('AuthContext register is not a function, using direct fetch');
-        response = await fetch('/api/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatedFormData),
-        });
-      } else {
-        response = await register(
-          updatedFormData.email,
-          updatedFormData.password,
-          updatedFormData.username,
-          updatedFormData.firstName,
-          updatedFormData.lastName,
-          updatedFormData.accountType
-        );
-      }
-      if (response && !response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData.error || 'Error al registrarse.';
-        const field = errorData.field || inferFieldFromError(errorMessage);
-        if (field && fieldToStep[field]) {
-          setStep(fieldToStep[field]);
-          setErrors({ [field]: errorMessage });
-        } else {
-          setErrors({ submit: errorMessage });
-        }
-        throw new Error(errorMessage);
-      }
-      router.push('/appointments');
+      await register(
+        updatedFormData.email,
+        updatedFormData.password,
+        updatedFormData.username,
+        updatedFormData.name,
+        updatedFormData.phone,
+        updatedFormData.businessName,
+        updatedFormData.logo,
+        updatedFormData.isBusiness
+      );
+      router.push('/verify');
     } catch (err) {
-      let errorMessage = err.message || 'Error al registrarse. Intenta de nuevo.';
-      if (err.name === 'TypeError' || !err.response) {
-        errorMessage = 'Problemas con el servidor, intenta de nuevo.';
-      }
-      setErrors({ submit: errorMessage });
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Registration error:', err);
+      const errorMessage = err.cause?.error || err.message || 'Error al registrarse. Intenta de nuevo.';
+      const field = err.cause?.field || inferFieldFromError(errorMessage);
+      if (field && fieldToStep[field]) {
+        setStep(fieldToStep[field]);
+        setErrors({ [field]: errorMessage });
+      } else {
+        setErrors({ submit: errorMessage });
       }
     } finally {
       setLoading(false);
@@ -134,9 +112,9 @@ export default function Register() {
     if (lowerMessage.includes('email')) return 'email';
     if (lowerMessage.includes('password') || lowerMessage.includes('contraseña')) return 'password';
     if (lowerMessage.includes('username') || lowerMessage.includes('usuario')) return 'username';
-    if (lowerMessage.includes('firstname') || lowerMessage.includes('nombre')) return 'firstName';
-    if (lowerMessage.includes('lastname') || lowerMessage.includes('apellido')) return 'lastName';
-    if (lowerMessage.includes('accounttype') || lowerMessage.includes('cuenta')) return 'accountType';
+    if (lowerMessage.includes('name') || lowerMessage.includes('nombre')) return 'name';
+    if (lowerMessage.includes('phone') || lowerMessage.includes('teléfono')) return 'phone';
+    if (lowerMessage.includes('businessname') || lowerMessage.includes('negocio')) return 'businessName';
     return null;
   };
 
@@ -223,26 +201,25 @@ export default function Register() {
                   <label className="flex flex-col gap-1 sm:w-1/2">
                     <input
                       type="text"
-                      name="firstName"
+                      name="name"
                       placeholder="Nombre"
-                      value={formData.firstName}
+                      value={formData.name}
                       onChange={handleChange}
                       className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
-                      required
+                      required={!formData.isBusiness}
                     />
-                    {errors.firstName && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.firstName}</p>}
+                    {errors.name && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.name}</p>}
                   </label>
                   <label className="flex flex-col gap-1 sm:w-1/2">
                     <input
                       type="text"
-                      name="lastName"
-                      placeholder="Apellido"
-                      value={formData.lastName}
+                      name="phone"
+                      placeholder="Teléfono"
+                      value={formData.phone}
                       onChange={handleChange}
                       className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
-                      required
                     />
-                    {errors.lastName && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.lastName}</p>}
+                    {errors.phone && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.phone}</p>}
                   </label>
                 </div>
               </>
@@ -250,13 +227,39 @@ export default function Register() {
             {step === 3 && (
               <div className="flex flex-col gap-3">
                 <p className="text-gray-900 text-sm font-medium text-center sm:text-base">Selecciona el tipo de cuenta</p>
+                {formData.isBusiness && (
+                  <>
+                    <label className="flex flex-col gap-1">
+                      <input
+                        type="text"
+                        name="businessName"
+                        placeholder="Nombre del negocio"
+                        value={formData.businessName}
+                        onChange={handleChange}
+                        className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
+                      />
+                      {errors.businessName && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.businessName}</p>}
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <input
+                        type="text"
+                        name="logo"
+                        placeholder="URL del logo (opcional)"
+                        value={formData.logo}
+                        onChange={handleChange}
+                        className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
+                      />
+                      {errors.logo && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.logo}</p>}
+                    </label>
+                  </>
+                )}
                 <div className="flex gap-3 justify-center">
                   <button
                     type="button"
-                    onClick={() => handleAccountType('personal')}
+                    onClick={() => handleAccountType(false)}
                     disabled={loading}
                     className={`rounded-xl p-5 font-bold flex flex-col items-center cursor-pointer ${
-                      formData.accountType === 'personal' ? 'bg-blue-700 text-white' : 'bg-[#d7e1f3] text-[#121417] hover:bg-blue-700 hover:text-white'
+                      !formData.isBusiness ? 'bg-blue-700 text-white' : 'bg-[#d7e1f3] text-[#121417] hover:bg-blue-700 hover:text-white'
                     } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <FaUser className="text-2xl mb-2" />
@@ -264,10 +267,10 @@ export default function Register() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleAccountType('business')}
+                    onClick={() => handleAccountType(true)}
                     disabled={loading}
                     className={`rounded-xl p-5 font-bold flex flex-col items-center cursor-pointer ${
-                      formData.accountType === 'business' ? 'bg-blue-700 text-white' : 'bg-[#d7e1f3] text-[#121417] hover:bg-blue-700 hover:text-white'
+                      formData.isBusiness ? 'bg-blue-700 text-white' : 'bg-[#d7e1f3] text-[#121417] hover:bg-blue-700 hover:text-white'
                     } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <FaBuilding className="text-2xl mb-2" />
@@ -301,10 +304,7 @@ export default function Register() {
             )}
             <p className="text-gray-900 text-xs font-normal text-center sm:text-sm">
               ¿Ya tienes cuenta?{' '}
-              <Link
-                href="/login"
-                className="text-blue-600 underline hover:text-blue-700 inline-block px-2 py-1"
-              >
+              <Link href="/login" className="text-blue-600 underline hover:text-blue-700 inline-block px-2 py-1">
                 Inicia sesión
               </Link>
             </p>
