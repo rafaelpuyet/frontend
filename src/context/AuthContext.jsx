@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 
 export const AuthContext = createContext();
 
@@ -64,7 +64,6 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ email, password, username, name, phone, businessName, logo, isBusiness }),
     });
     setToken(data.token);
-    await fetchUser();
     return data;
   };
 
@@ -79,9 +78,12 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const verify = async (token) => {
-    return await apiFetch(`/auth/verify?token=${token}`);
-  };
+  const verify = useCallback(
+    async (token) => {
+      return await apiFetch(`/auth/verify?token=${token}`);
+    },
+    [apiFetch]
+  );
 
   const resendVerification = async (email) => {
     return await apiFetch('/auth/resend-verification', {

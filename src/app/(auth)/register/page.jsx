@@ -27,6 +27,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState(1);
+  const [success, setSuccess] = useState(false);
 
   const fieldToStep = {
     email: 1,
@@ -45,8 +46,8 @@ export default function Register() {
       if (!data.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
         newErrors.email = 'Ingresa un correo electrónico válido.';
       }
-      if (!data.password.match(/^[A-Za-z\d]{8,}$/)) {
-        newErrors.password = 'La contraseña debe tener al menos 8 caracteres, solo letras y números.';
+      if (!data.password.match(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*]{8,}$/)) {
+        newErrors.password = 'La contraseña debe tener al menos 8 caracteres, incluyendo letras y números. Se permiten caracteres especiales.';
       }
     } else if (step === 2) {
       if (!data.username.match(/^[a-zA-Z0-9-]{3,50}$/)) {
@@ -95,7 +96,8 @@ export default function Register() {
         updatedFormData.logo,
         updatedFormData.isBusiness
       );
-      router.push('/verify');
+      setSuccess(true);
+      setTimeout(() => router.push('/login'), 5000); // Redirect to login after 5 seconds
     } catch (err) {
       const errorMessage = err.cause?.error || err.message || 'Error al registrarse. Intenta de nuevo.';
       const field = err.cause?.field || inferFieldFromError(errorMessage);
@@ -137,6 +139,37 @@ export default function Register() {
       setErrors({});
     }
   };
+
+  if (success) {
+    return (
+      <div className={`relative flex min-h-screen flex-col bg-white ${inter.className} ${notoSans.className}`}>
+        <div className="flex flex-1 flex-col items-center justify-center py-4 px-2 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-10">
+          <div className="flex flex-col w-full max-w-[512px] gap-3 sm:gap-4">
+            <div className="flex items-center justify-center gap-2 pb-6 pt-4 sm:gap-3 sm:pb-12 sm:pt-10">
+              <FaUserPlus className="text-gray-900 text-lg sm:text-xl md:text-2xl" />
+              <h2 className="text-gray-900 text-xl font-bold leading-tight tracking-tight text-center sm:text-2xl md:text-3xl">
+                Registro Exitoso
+              </h2>
+            </div>
+            <p className="text-gray-900 text-sm font-normal text-center sm:text-base">
+              Revisa tu correo para activar tu cuenta. Te hemos enviado un enlace de verificación a <strong>{formData.email}</strong>.
+            </p>
+            <p className="text-gray-900 text-sm font-normal text-center sm:text-base">
+              ¿No recibiste el correo?{' '}
+              <Link href="/resend-verification" className="text-blue-600 underline hover:text-blue-700 inline-block px-2 py-1">
+                Reenviar verificación
+              </Link>
+            </p>
+            <p className="text-gray-900 text-sm font-normal text-center sm:text-base">
+              <Link href="/login" className="text-blue-600 underline hover:text-blue-700 inline-block px-2 py-1">
+                Ir a iniciar sesión
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative flex min-h-screen flex-col bg-white ${inter.className} ${notoSans.className}`}>
