@@ -35,7 +35,6 @@ export default function Verify() {
         await verify(token);
         if (isMounted) {
           setSuccess(true);
-          setTimeout(() => router.push('/login'), 3000);
         }
       } catch (err) {
         if (isMounted) {
@@ -52,7 +51,7 @@ export default function Verify() {
     return () => {
       isMounted = false;
     };
-  }, [token, verify, success]);
+  }, [token, success]);
 
   if (loading) {
     return (
@@ -75,9 +74,16 @@ export default function Verify() {
             </h2>
           </div>
           {success && (
-            <p className="text-gray-900 text-sm font-normal text-center sm:text-base">
-              Correo verificado exitosamente. Serás redirigido a iniciar sesión en unos segundos...
-            </p>
+            <>
+              <p className="text-gray-900 text-sm font-normal text-center sm:text-base">
+                Correo verificado exitosamente. Ahora puedes iniciar sesión.
+              </p>
+              <p className="text-gray-900 text-sm font-normal text-center sm:text-base">
+                <Link href="/login" className="text-blue-600 underline hover:text-blue-700 inline-block px-2 py-1">
+                  Ir a iniciar sesión
+                </Link>
+              </p>
+            </>
           )}
           {error && (
             <>

@@ -46,8 +46,8 @@ export default function Register() {
       if (!data.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
         newErrors.email = 'Ingresa un correo electrónico válido.';
       }
-      if (!data.password.match(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*]{8,}$/)) {
-        newErrors.password = 'La contraseña debe tener al menos 8 caracteres, incluyendo letras y números. Se permiten caracteres especiales.';
+      if (!data.password.match(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*._()-]{8,}$/)) {
+        newErrors.password = 'La contraseña debe tener al menos 8 caracteres, números y letras.';
       }
     } else if (step === 2) {
       if (!data.username.match(/^[a-zA-Z0-9-]{3,50}$/)) {
@@ -97,7 +97,6 @@ export default function Register() {
         updatedFormData.isBusiness
       );
       setSuccess(true);
-      setTimeout(() => router.push('/login'), 5000); // Redirect to login after 5 seconds
     } catch (err) {
       const errorMessage = err.cause?.error || err.message || 'Error al registrarse. Intenta de nuevo.';
       const field = err.cause?.field || inferFieldFromError(errorMessage);
