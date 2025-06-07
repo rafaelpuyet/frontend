@@ -59,6 +59,9 @@ export default function Register() {
       if (!data.isBusiness && !data.name) {
         newErrors.name = 'El nombre es obligatorio para cuentas personales.';
       }
+      if (data.isBusiness && !data.businessName) {
+        newErrors.businessName = 'El nombre del negocio es obligatorio.';
+      }
       if (data.businessName && !data.businessName.match(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,100}$/)) {
         newErrors.businessName = 'El nombre del negocio debe tener 2-100 caracteres, solo letras.';
       }
@@ -237,6 +240,7 @@ export default function Register() {
                         value={formData.businessName}
                         onChange={handleChange}
                         className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
+                        required
                       />
                       {errors.businessName && <p className="text-red-500 text-xs font-normal sm:text-sm">{errors.businessName}</p>}
                     </label>

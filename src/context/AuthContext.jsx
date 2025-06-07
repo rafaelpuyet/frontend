@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const apiFetch = async (url, options = {}) => {
+  const apiFetch = async (url, options = {}, retries = 2) => {
     setLoading(true);
     setError(null);
     try {
@@ -20,6 +20,7 @@ export function AuthProvider({ children }) {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       };
+      console.log('Fetching:', `${process.env.NEXT_PUBLIC_API_URL}${url}`, { options });
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
         ...options,
         headers,
@@ -34,7 +35,7 @@ export function AuthProvider({ children }) {
           });
           if (!retryResponse.ok) {
             const errorData = await retryResponse.json();
-            throw new Error(errorData.error || 'Request failed');
+            throw new Error(errorData.error || 'Request failed', { cause: errorData });
           }
           return await retryResponse.json();
         }
@@ -45,6 +46,11 @@ export function AuthProvider({ children }) {
       }
       return response.status !== 204 ? await response.json() : null;
     } catch (err) {
+      console.error('Fetch error:', err.message, { url, options, retries });
+      if (retries > 0 && err.message.includes('Failed to fetch')) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return apiFetch(url, options, retries - 1);
+      }
       setError(err.message);
       throw err;
     } finally {
