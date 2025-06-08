@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
-// Íconos SVG del HTML (pueden reemplazarse con lucide-react)
+// Íconos SVG del HTML
 const DashboardIcon = () => (
   <svg
     className="lucide lucide-layout-dashboard"
@@ -145,7 +145,7 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Botón hamburguesa para pantallas pequeñas */}
+      {/* Botón hamburguesa para móviles */}
       <button
         className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-md bg-gray-100 hover:bg-gray-200"
         onClick={toggleSidebar}
@@ -171,7 +171,7 @@ export default function Sidebar() {
       <aside
         className={`flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm fixed top-0 left-0 h-full z-40 transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
+        } lg:translate-x-0 lg:w-64`}
       >
         {/* Logo y Nombre */}
         <div className="flex items-center gap-3 text-slate-900 px-6 py-4 border-b border-gray-200">
@@ -183,33 +183,32 @@ export default function Sidebar() {
             >
               <g clipPath="url(#clip0_6_319)">
                 <path
-                  d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"
+                  d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 0 0 41 48 48 1 48 48 Z"
                   fill="currentColor"
                 />
               </g>
               <defs>
-                <clipPath id="clip0_6_319">
-                  <rect fill="white" height="48" width="48"></rect>
-                </clipPath>
+                <rect fill="white" height="48" width="48"></rect>
               </defs>
             </svg>
           </div>
-          <h2 className="text-xl font-semibold leading-tight tracking-[-0.015em] text-slate-900">
+          <h2 className="text-xl font-bold tracking-tight text-slate-600 sm:text-lg">
             Acme Co
           </h2>
         </div>
 
-        {/* Navegación */}
+        {/* Navegando */}
         <nav className="flex flex-col gap-2 p-4">
           {navLinks.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
+              className={`flex items-center gap-3 px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-200 ${
                 pathname === href
-                  ? 'bg-gray-100 text-[#1677FF]'
-                  : 'text-slate-700 hover:bg-gray-100 hover:text-[#1677FF]'
+                  ? 'bg-blue-100 text-[#1677FF]'
+                  : 'text-slate-700 hover:bg-gray-50 hover:text-[#1677FF]'
               }`}
+              onClick={() => setIsOpen(false)} // Cierra el sidebar en móviles al navegar
             >
               <Icon />
               {label}
@@ -218,7 +217,7 @@ export default function Sidebar() {
         </nav>
       </aside>
 
-      {/* Fondo de overlay para pantallas pequeñas */}
+      {/* Overlay para móviles */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"

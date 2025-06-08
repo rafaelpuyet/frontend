@@ -79,9 +79,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="px-8 sm:px-16 md:px-24 lg:px-32 xl:px-40 py-8 flex flex-1 justify-center bg-gray-100">
-      <div className="layout-content-container flex flex-col w-full max-w-5xl gap-8">
-        <h1 className="text-slate-900 text-3xl font-bold leading-tight">
+    <main className="px-4 sm:px-6 md:px-8 lg:px-16 xl:px-20 py-6 flex flex-1 justify-center bg-gray-100">
+      <div className="layout-content-container flex flex-col w-full max-w-4xl gap-6">
+        <h1 className="text-slate-900 text-2xl sm:text-3xl font-bold leading-tight">
           Welcome back, {user.name || 'User'}
         </h1>
 
@@ -105,41 +105,41 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="flex flex-col gap-2 rounded-xl p-6 border border-gray-200 bg-white shadow-sm">
-            <p className="text-slate-700 text-base font-medium leading-normal">Appointments Today</p>
-            <p className="text-slate-900 text-3xl font-bold leading-tight">{metrics.appointmentsToday}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-2 rounded-xl p-4 border border-gray-200 bg-white shadow-sm">
+            <p className="text-slate-700 text-sm sm:text-base font-medium leading-normal">Appointments Today</p>
+            <p className="text-slate-900 text-2xl sm:text-3xl font-bold leading-tight">{metrics.appointmentsToday}</p>
           </div>
-          <div className="flex flex-col gap-2 rounded-xl p-6 border border-gray-200 bg-white shadow-sm">
-            <p className="text-slate-700 text-base font-medium leading-normal">Appointments This Week</p>
-            <p className="text-slate-900 text-3xl font-bold leading-tight">{metrics.appointmentsWeek}</p>
+          <div className="flex flex-col gap-2 rounded-xl p-4 border border-gray-200 bg-white shadow-sm">
+            <p className="text-slate-700 text-sm sm:text-base font-medium leading-normal">Appointments This Week</p>
+            <p className="text-slate-900 text-2xl sm:text-3xl font-bold leading-tight">{metrics.appointmentsWeek}</p>
           </div>
-          <div className="flex flex-col gap-2 rounded-xl p-6 border border-gray-200 bg-white shadow-sm">
-            <p className="text-slate-700 text-base font-medium leading-normal">Active Branches</p>
-            <p className="text-slate-900 text-3xl font-bold leading-tight">{metrics.activeBranches}</p>
+          <div className="flex flex-col gap-2 rounded-xl p-4 border border-gray-200 bg-white shadow-sm">
+            <p className="text-slate-700 text-sm sm:text-base font-medium leading-normal">Active Branches</p>
+            <p className="text-slate-900 text-2xl sm:text-3xl font-bold leading-tight">{metrics.activeBranches}</p>
           </div>
         </div>
 
         <div className="flex flex-col gap-4">
-          <h2 className="text-slate-900 text-xl font-semibold leading-tight">Recent Appointments</h2>
+          <h2 className="text-slate-900 text-lg sm:text-xl font-semibold leading-tight">Recent Appointments</h2>
           <div className="overflow-x-auto @container">
             <div className="min-w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
               <table className="min-w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-120 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-120 px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Customer
                     </th>
-                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-240 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-240 px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Service
                     </th>
-                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-360 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-360 px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Date
                     </th>
-                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-480 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-480 px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Time
                     </th>
-                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-600 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-600 px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Status
                     </th>
                   </tr>
@@ -147,21 +147,21 @@ export default function DashboardPage() {
                 <tbody className="divide-y divide-gray-200">
                   {recentAppointments.map((appointment, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
-                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-120 whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-120 whitespace-nowrap px-4 py-2 sm:px-6 sm:py-4 text-sm font-medium text-slate-900">
                         {appointment.customerName}
                       </td>
-                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-240 whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-240 whitespace-nowrap px-4 py-2 sm:px-6 sm:py-4 text-sm text-slate-600">
                         {appointment.serviceName}
                       </td>
-                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-360 whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-360 whitespace-nowrap px-4 py-2 sm:px-6 sm:py-4 text-sm text-slate-600">
                         {appointment.date}
                       </td>
-                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-480 whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-480 whitespace-nowrap px-4 py-2 sm:px-6 sm:py-4 text-sm text-slate-600">
                         {appointment.time}
                       </td>
-                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-600 whitespace-nowrap px-6 py-4 text-sm">
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-600 whitespace-nowrap px-4 py-2 sm:px-6 sm:py-4 text-sm">
                         <span
-                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                          className={`inline-flex items-center rounded-full px-2 sm:px-3 py-1 text-xs font-semibold ${
                             appointment.status === 'Confirmed'
                               ? 'bg-green-100 text-green-700'
                               : appointment.status === 'Completed'
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                   ))}
                   {recentAppointments.length === 0 && (
                     <tr>
-                      <td colSpan="5" className="px-6 py-4 text-center text-sm text-slate-600">
+                      <td colSpan="5" className="px-4 py-2 sm:px-6 sm:py-4 text-center text-sm text-slate-600">
                         No recent appointments
                       </td>
                     </tr>
