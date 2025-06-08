@@ -16,13 +16,14 @@ export default function BookAppointment() {
   const branchId = searchParams.get('branchId');
   const startTime = searchParams.get('startTime');
   const endTime = searchParams.get('endTime');
+  const workerId = searchParams.get('workerId'); // Optional, from availability
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
-  const timezone = 'America/Santiago';
+  const timezone = 'America/Santiago'; // Default, fetch from business later
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +37,8 @@ export default function BookAppointment() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            branchId: parseInt(branchId),
+            branchId: branchId ? parseInt(branchId) : undefined,
+            workerId: workerId ? parseInt(workerId) : undefined,
             startTime,
             endTime,
             clientName,

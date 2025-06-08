@@ -25,16 +25,17 @@ export default function Availability() {
 
   useEffect(() => {
     const fetchSlots = async () => {
-      if (!branchId) {
-        setError('Sucursal no seleccionada.');
+      if (!branchId && !username) {
+        setError('Sucursal o negocio no seleccionado.');
         setLoading(false);
         return;
       }
       try {
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/public/business/${username}/availability?branchId=${branchId}&date=${dateStr}`
-        );
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/public/business/${username}/availability`);
+        url.searchParams.append('date', dateStr);
+        if (branchId) url.searchParams.append('branchId', branchId);
+        const response = await fetch(url);
         const data = await response.json();
         if (response.ok) {
           setSlots(data.availableSlots);
@@ -51,8 +52,13 @@ export default function Availability() {
   }, [username, branchId, selectedDate]);
 
   const handleSlotSelect = (slot) => {
-    const params = new URLSearchParams({ branchId, ...slot });
-    router.push(`/${username}/appointments?${params.toString()}`);
+    const params = new URLSearchParams({
+      branchId: branchId || '',
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      workerId: slot.workerId?.toString() || '',
+    });
+    router.push(`/${username}/book?${params.toString()}`);
   };
 
   if (loading) {
