@@ -2,7 +2,6 @@
 
 import { AuthContext } from '../../../context/AuthContext';
 import { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 // Debug ID
 const instanceId = Math.random().toString(36).slice(2, 9);
@@ -10,7 +9,6 @@ const instanceId = Math.random().toString(36).slice(2, 9);
 export default function DashboardPage() {
   console.log(`[${instanceId}] DashboardPage mounted`);
   const { user, loading, apiFetch, logout } = useContext(AuthContext);
-  const router = useRouter();
   const [metrics, setMetrics] = useState({
     appointmentsToday: 0,
     appointmentsWeek: 0,
@@ -18,14 +16,6 @@ export default function DashboardPage() {
   });
   const [recentAppointments, setRecentAppointments] = useState([]);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    console.log(`[${instanceId}] DashboardPage useEffect: user=${!!user}, loading=${loading}`);
-    if (!loading && !user) {
-      console.log(`[${instanceId}] No user, redirecting to /login`);
-      router.push('/login');
-    }
-  }, [user, loading, router]);
 
   useEffect(() => {
     if (!user || loading) return;
@@ -40,15 +30,33 @@ export default function DashboardPage() {
           apiFetch('/api/appointments/sessions?recent=true'),
         ]);
 
+        // Validar respuestas
+        if (typeof todayRes.count !== 'number') throw new Error('Invalid today appointments data');
+        if (typeof weekRes.count !== 'number') throw new Error('Invalid week appointments data');
+        if (!Array.isArray(branchesRes)) throw new Error('Invalid branches data');
+        if (!Array.isArray(recentRes.appointments)) throw new Error('Invalid recent appointments data');
+
         setMetrics({
-          appointmentsToday: todayRes.count || 0,
-          appointmentsWeek: weekRes.count || 0,
-          activeBranches: branchesRes.length || 0,
+          appointmentsToday: todayRes.count,
+          appointmentsWeek: weekRes.count,
+          activeBranches: branchesRes.length,
         });
-        setRecentAppointments(recentRes.appointments || []);
+        setRecentAppointments(
+          recentRes.appointments.map((appt) => ({
+            customerName: appt.customerName || 'N/A',
+            serviceName: appt.serviceName || 'N/A',
+            date: appt.date || 'N/A',
+            time: appt.time || 'N/A',
+            status: appt.status || 'N/A',
+          }))
+        );
       } catch (err) {
         console.error(`[${instanceId}] Error fetching dashboard data: ${err.message}`);
-        setError(err.message);
+        setError(
+          err.message === 'Unauthorized'
+            ? 'Sesión expirada. Por favor, inicia sesión nuevamente.'
+            : `Error al cargar datos: ${err.message}`
+        );
         if (err.message === 'Unauthorized') {
           console.log(`[${instanceId}] Unauthorized, logging out`);
           logout();
@@ -67,7 +75,7 @@ export default function DashboardPage() {
 
   if (loading || !user) {
     console.log(`[${instanceId}] Rendering loading state`);
-    return <div className="flex flex-1 justify-center items-center">Loading...</div>;
+    return null; // Layout maneja el loading
   }
 
   return (
@@ -119,19 +127,19 @@ export default function DashboardPage() {
               <table className="min-w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-120 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Customer
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-240 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Service
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-360 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-480 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Time
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                    <th className="table-e454053c-800e-4fac-a661-7932bdb74680-column-600 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                       Status
                     </th>
                   </tr>
@@ -139,19 +147,19 @@ export default function DashboardPage() {
                 <tbody className="divide-y divide-gray-200">
                   {recentAppointments.map((appointment, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
-                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">
-                        {appointment.customerName || 'N/A'}
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-120 whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">
+                        {appointment.customerName}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                        {appointment.serviceName || 'N/A'}
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-240 whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                        {appointment.serviceName}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                        {appointment.date || 'N/A'}
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-360 whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                        {appointment.date}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                        {appointment.time || 'N/A'}
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-480 whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                        {appointment.time}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm">
+                      <td className="table-e454053c-800e-4fac-a661-7932bdb74680-column-600 whitespace-nowrap px-6 py-4 text-sm">
                         <span
                           className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
                             appointment.status === 'Confirmed'
@@ -163,7 +171,7 @@ export default function DashboardPage() {
                               : 'bg-gray-100 text-gray-700'
                           }`}
                         >
-                          {appointment.status || 'N/A'}
+                          {appointment.status}
                         </span>
                       </td>
                     </tr>
@@ -180,18 +188,14 @@ export default function DashboardPage() {
             </div>
             <style jsx>{`
               @container (max-width: 640px) {
-                th:nth-child(2),
-                td:nth-child(2),
-                th:nth-child(3),
-                td:nth-child(3),
-                th:nth-child(4),
-                td:nth-child(4) {
+                .table-e454053c-800e-4fac-a661-7932bdb74680-column-240,
+                .table-e454053c-800e-4fac-a661-7932bdb74680-column-360,
+                .table-e454053c-800e-4fac-a661-7932bdb74680-column-480 {
                   display: none;
                 }
               }
               @container (max-width: 480px) {
-                th:nth-child(5),
-                td:nth-child(5) {
+                .table-e454053c-800e-4fac-a661-7932bdb74680-column-600 {
                   display: none;
                 }
               }
