@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 export const AuthContext = createContext();
 
@@ -8,8 +9,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const router = useRouter();
 
   const apiFetch = async (url, options = {}, retries = 2) => {
     setLoading(true);
@@ -20,7 +22,6 @@ export function AuthProvider({ children }) {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       };
-      console.log('Fetching:', `${process.env.NEXT_PUBLIC_API_URL}${url}`, { options });
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
         ...options,
         headers,
@@ -58,12 +59,45 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const initializeAuth = async () => {
+    const storedToken = localStorage.getItem('token');
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    if (!storedToken || !storedRefreshToken) {
+      setLoading(false);
+      return;
+    }
+    setToken(storedToken);
+    setRefreshToken(storedRefreshToken);
+    try {
+      const data = await apiFetch('/auth/me');
+      setUser(data);
+    } catch (err) {
+      console.error('Error inicializando auth:', err.message);
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      setToken(null);
+      setRefreshToken(null);
+      setUser(null);
+      router.push('/login');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    initializeAuth();
+  }, []);
+
   const register = async (email, password, username, name, phone, businessName, logo, isBusiness) => {
     const data = await apiFetch('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password, username, name, phone, businessName, logo, isBusiness }),
     });
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('refreshToken', data.refreshToken);
     setToken(data.token);
+    setRefreshToken(data.refreshToken);
+    await fetchUser();
     return data;
   };
 
@@ -72,6 +106,8 @@ export function AuthProvider({ children }) {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('refreshToken', data.refreshToken);
     setToken(data.token);
     setRefreshToken(data.refreshToken);
     await fetchUser();
@@ -82,7 +118,7 @@ export function AuthProvider({ children }) {
     async (token) => {
       return await apiFetch(`/auth/verify?token=${token}`);
     },
-    [apiFetch]
+    []
   );
 
   const resendVerification = async (email) => {
@@ -98,13 +134,19 @@ export function AuthProvider({ children }) {
         method: 'POST',
         body: JSON.stringify({ refreshToken }),
       });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('refreshToken', data.refreshToken);
       setToken(data.token);
       setRefreshToken(data.refreshToken);
       return data;
     } catch (err) {
+      console.error('Error refrescando token:', err.message);
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       setToken(null);
       setRefreshToken(null);
       setUser(null);
+      router.push('/login');
       return null;
     }
   };
@@ -114,6 +156,7 @@ export function AuthProvider({ children }) {
       const data = await apiFetch('/auth/me');
       setUser(data);
     } catch (err) {
+      console.error('Error fetching user:', err.message);
       setUser(null);
     }
   };
@@ -123,6 +166,7 @@ export function AuthProvider({ children }) {
       method: 'PUT',
       body: JSON.stringify({ name, phone }),
     });
+    localStorage.setItem('token', data.token);
     setToken(data.token);
     await fetchUser();
     return data;
@@ -133,6 +177,7 @@ export function AuthProvider({ children }) {
       method: 'PUT',
       body: JSON.stringify({ name, logo, timezone }),
     });
+    localStorage.setItem('token', data.token);
     setToken(data.token);
     await fetchUser();
     return data;
@@ -223,16 +268,13 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setToken(null);
     setRefreshToken(null);
     setUser(null);
+    router.push('/login');
   };
-
-  useEffect(() => {
-    if (token) {
-      fetchUser();
-    }
-  }, [token]);
 
   return (
     <AuthContext.Provider
