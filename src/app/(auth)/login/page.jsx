@@ -43,7 +43,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(formData.email, formData.password);
-      router.push('/appointments');
+      router.push('/dashboard');
     } catch (err) {
       if (err.cause?.error === 'Account not verified') {
         router.push(`/resend-verification?email=${encodeURIComponent(formData.email)}`);
