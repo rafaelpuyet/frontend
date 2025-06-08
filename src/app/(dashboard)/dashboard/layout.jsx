@@ -10,26 +10,6 @@ const DashboardLayout = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-      try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(response.data);
-      } catch (err) {
-        localStorage.removeItem('token');
-        router.push('/login');
-      }
-    };
-    fetchUser();
-  }, [router]);
-
   const navItems = [
     { path: '/dashboard', label: 'Resumen' },
     { path: '/dashboard/profile', label: 'Perfil' },

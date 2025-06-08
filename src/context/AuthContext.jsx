@@ -16,7 +16,6 @@ export function AuthProvider({ children }) {
 
   const apiFetch = useCallback(
     async (url, options = {}, retries = 2) => {
-      // Wait for initialization unless it's an auth-related request
       if (!isInitialized && !['/auth/me', '/auth/refresh', '/auth/login', '/auth/register'].includes(url)) {
         console.log('Blocking request until auth initialized:', url);
         await new Promise((resolve) => {
@@ -203,19 +202,24 @@ export function AuthProvider({ children }) {
 
   const fetchUser = useCallback(
     async () => {
+      if (user || !token) {
+        console.log('Skipping fetchUser:', { hasUser: !!user, hasToken: !!token });
+        return;
+      }
       try {
+        console.log('Fetching user via /auth/me');
         const data = await apiFetch('/auth/me');
         setUser(data);
       } catch (err) {
-        console.error('Error fetching user:', err.message);
+        console.error('Error fetching user:', err.message, err.cause);
         setUser(null);
       }
     },
-    [apiFetch]
+    [apiFetch, user, token]
   );
 
-  const updateUser = async (name, phone) => {
-    const data = await apiFetch('/user/update', {
+  const updateUser = async ({name, phone}) => {
+    const data = await apiFetch('/api/users/update', {
       method: 'PUT',
       body: JSON.stringify({ name, phone }),
     });
@@ -226,7 +230,7 @@ export function AuthProvider({ children }) {
   };
 
   const updateBusiness = async (name, logo, timezone) => {
-    const data = await apiFetch('/business/update', {
+    const data = await apiFetch('/api/businesses/update', {
       method: 'PUT',
       body: JSON.stringify({ name, logo, timezone }),
     });
@@ -237,79 +241,79 @@ export function AuthProvider({ children }) {
   };
 
   const createBranch = async (name, address) => {
-    return await apiFetch('/branches', {
+    return await apiFetch('/api/sucursales', {
       method: 'POST',
       body: JSON.stringify({ name, address }),
     });
   };
 
   const updateBranch = async (id, name, address) => {
-    return await apiFetch(`/branches/${id}`, {
+    return await apiFetch(`/api/sucursales/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ name, address }),
     });
   };
 
   const deleteBranch = async (id) => {
-    return await apiFetch(`/branches/${id}`, { method: 'DELETE' });
+    return await apiFetch(`/api/sucursales/${id}`, { method: 'DELETE' });
   };
 
   const createWorker = async (workerName, branchId) => {
-    return await apiFetch('/workers', {
+    return await apiFetch('/api/users', {
       method: 'POST',
       body: JSON.stringify({ workerName, branchId }),
     });
   };
 
   const updateWorker = async (id, workerName, branchId) => {
-    return await apiFetch(`/workers/${id}`, {
+    return await apiFetch(`/api/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ workerName, branchId }),
     });
   };
 
   const deleteWorker = async (id) => {
-    return await apiFetch(`/workers/${id}`, { method: 'DELETE' });
+    return await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
   };
 
   const createSchedule = async (branchId, workerId, dayOfWeek, startTime, endTime, slotDuration) => {
-    return await apiFetch('/schedules', {
+    return await apiFetch('/api/schedules', {
       method: 'POST',
       body: JSON.stringify({ branchId, workerId, dayOfWeek, startTime, endTime, slotDuration }),
     });
   };
 
   const updateSchedule = async (id, branchId, workerId, dayOfWeek, startTime, endTime, slotDuration) => {
-    return await apiFetch(`/schedules/${id}`, {
+    return await apiFetch(`/api/schedules/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ branchId, workerId, dayOfWeek, startTime, endTime, slotDuration }),
     });
   };
 
   const deleteSchedule = async (id) => {
-    return await apiFetch(`/schedules/${id}`, { method: 'DELETE' });
+    return await apiFetch(`/api/schedules/${id}`, { method: 'DELETE' });
   };
 
   const createException = async (branchId, workerId, date, isClosed, startTime, endTime) => {
-    return await apiFetch('/exceptions', {
+    return await apiFetch('/api/exceptions', {
       method: 'POST',
       body: JSON.stringify({ branchId, workerId, date, isClosed, startTime, endTime }),
     });
   };
 
   const updateException = async (id, branchId, workerId, date, isClosed, startTime, endTime) => {
-    return await apiFetch(`/exceptions/${id}`, {
+    return await apiFetch(`/api/exceptions/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ branchId, workerId, date, isClosed, startTime, endTime }),
     });
   };
 
   const deleteException = async (id) => {
-    return await apiFetch(`/exceptions/${id}`, { method: 'DELETE' });
+    return await apiFetch(`/api/exceptions/${id}`, { method: 'DELETE' });
   };
 
   const updateAppointment = async (id, startTime, endTime, status) => {
-    return await apiFetch(`/appointments/${id}`, {
+    return await apiFetch(`/api/appointments/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ startTime, endTime, status }),
     });
@@ -317,7 +321,7 @@ export function AuthProvider({ children }) {
 
   const getAuditLogs = async (filters) => {
     const query = new URLSearchParams(filters).toString();
-    return await apiFetch(`/audit-logs?${query}`);
+    return await apiFetch(`/api/audit-logs?${query}`);
   };
 
   const logout = () => {
