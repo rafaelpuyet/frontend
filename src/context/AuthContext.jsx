@@ -22,11 +22,13 @@ export function AuthProvider({ children }) {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       };
+      console.log('Fetching:', `${process.env.NEXT_PUBLIC_API_URL}${url}`, { headers });
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
         ...options,
         headers,
       });
       if (response.status === 401 && refreshToken) {
+        console.log('Token expired, attempting refresh');
         const newTokens = await refresh();
         if (newTokens) {
           headers.Authorization = `Bearer ${newTokens.token}`;
@@ -38,7 +40,7 @@ export function AuthProvider({ children }) {
             const errorData = await retryResponse.json();
             throw new Error(errorData.error || 'Request failed', { cause: errorData });
           }
-          return await retryResponse.json();
+          return retryResponse.status !== 204 ? await retryResponse.json() : null;
         }
       }
       if (!response.ok) {
@@ -64,6 +66,7 @@ export function AuthProvider({ children }) {
     const storedRefreshToken = localStorage.getItem('refreshToken');
     if (!storedToken || !storedRefreshToken) {
       setLoading(false);
+      router.push('/login');
       return;
     }
     setToken(storedToken);
@@ -72,7 +75,21 @@ export function AuthProvider({ children }) {
       const data = await apiFetch('/auth/me');
       setUser(data);
     } catch (err) {
-      console.error('Error inicializando auth:', err.message);
+      console.error('Error fetching /auth/me:', err.message, err.cause);
+      if (refreshToken) {
+        console.log('Attempting to refresh token');
+        const newTokens = await refresh();
+        if (newTokens) {
+          try {
+            const data = await apiFetch('/auth/me');
+            setUser(data);
+            return;
+          } catch (retryErr) {
+            console.error('Error after refresh:', retryErr.message, retryErr.cause);
+          }
+        }
+      }
+      console.log('Authentication failed, clearing tokens');
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       setToken(null);
@@ -102,6 +119,7 @@ export function AuthProvider({ children }) {
   };
 
   const login = async (email, password) => {
+    console.log('Logging in:', { email });
     const data = await apiFetch('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
@@ -110,16 +128,14 @@ export function AuthProvider({ children }) {
     localStorage.setItem('refreshToken', data.refreshToken);
     setToken(data.token);
     setRefreshToken(data.refreshToken);
+    console.log('Tokens saved:', { token: data.token, refreshToken: data.refreshToken });
     await fetchUser();
     return data;
   };
 
-  const verify = useCallback(
-    async (token) => {
-      return await apiFetch(`/auth/verify?token=${token}`);
-    },
-    []
-  );
+  const verify = useCallback(async (token) => {
+    return await apiFetch(`/auth/verify?token=${token}`);
+  }, []);
 
   const resendVerification = async (email) => {
     return await apiFetch('/auth/resend-verification', {
@@ -130,6 +146,7 @@ export function AuthProvider({ children }) {
 
   const refresh = async () => {
     try {
+      console.log('Refreshing token with:', refreshToken);
       const data = await apiFetch('/auth/refresh', {
         method: 'POST',
         body: JSON.stringify({ refreshToken }),
@@ -138,15 +155,10 @@ export function AuthProvider({ children }) {
       localStorage.setItem('refreshToken', data.refreshToken);
       setToken(data.token);
       setRefreshToken(data.refreshToken);
+      console.log('Tokens refreshed:', { token: data.token, refreshToken: data.refreshToken });
       return data;
     } catch (err) {
-      console.error('Error refrescando token:', err.message);
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      setToken(null);
-      setRefreshToken(null);
-      setUser(null);
-      router.push('/login');
+      console.error('Error refreshing token:', err.message, err.cause);
       return null;
     }
   };
@@ -222,14 +234,14 @@ export function AuthProvider({ children }) {
   const createSchedule = async (branchId, workerId, dayOfWeek, startTime, endTime, slotDuration) => {
     return await apiFetch('/schedules', {
       method: 'POST',
-      body: JSON.stringify({ branchId, workerId, dayOfWeek, startTime, endTime, slotDuration }),
+      body: JSON.stringify({ branchId, dayOfWeek, workerId, startTime, endTime, slotDuration }),
     });
   };
 
   const updateSchedule = async (id, branchId, workerId, dayOfWeek, startTime, endTime, slotDuration) => {
     return await apiFetch(`/schedules/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ branchId, workerId, dayOfWeek, startTime, endTime, slotDuration }),
+      body: JSON.stringify({ id, branchId, workerId, dayOfWeek, startTime, endTime, slotDuration }),
     });
   };
 
@@ -240,14 +252,14 @@ export function AuthProvider({ children }) {
   const createException = async (branchId, workerId, date, isClosed, startTime, endTime) => {
     return await apiFetch('/exceptions', {
       method: 'POST',
-      body: JSON.stringify({ branchId, workerId, date, isClosed, startTime, endTime }),
+      body: JSON.stringify({ branchId, date, workerId, isClosed, startTime, endTime }),
     });
   };
 
   const updateException = async (id, branchId, workerId, date, isClosed, startTime, endTime) => {
     return await apiFetch(`/exceptions/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ branchId, workerId, date, isClosed, startTime, endTime }),
+      body: JSON.stringify({ id, branchId, date, workerId, isClosed, startTime, endTime }),
     });
   };
 
@@ -268,6 +280,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    console.log('Logging out, clearing tokens');
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     setToken(null);
