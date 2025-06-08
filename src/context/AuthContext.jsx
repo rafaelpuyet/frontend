@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 export const AuthContext = createContext();
@@ -11,77 +11,107 @@ export function AuthProvider({ children }) {
   const [refreshToken, setRefreshToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
 
-  const apiFetch = async (url, options = {}, retries = 2) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...options.headers,
-      };
-      console.log('Fetching:', `${process.env.NEXT_PUBLIC_API_URL}${url}`, { headers });
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-        ...options,
-        headers,
-      });
-      if (response.status === 401 && refreshToken) {
-        console.log('Token expired, attempting refresh');
-        const newTokens = await refresh();
-        if (newTokens) {
-          headers.Authorization = `Bearer ${newTokens.token}`;
-          const retryResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-            ...options,
-            headers,
-          });
-          if (!retryResponse.ok) {
-            const errorData = await retryResponse.json();
-            throw new Error(errorData.error || 'Request failed', { cause: errorData });
+  const apiFetch = useCallback(
+    async (url, options = {}, retries = 2) => {
+      if (!isInitialized && url !== '/auth/me' && url !== '/auth/refresh') {
+        console.log('Blocking request until auth is initialized:', url);
+        await new Promise(resolve => {
+          const check = () => {
+            if (isInitialized) resolve();
+            else setTimeout(check, 100);
+          };
+          check();
+        });
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...options.headers,
+        };
+        console.log('apiFetch:', `${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+          method: options.method || 'GET',
+          headers,
+          body: options.body,
+        });
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+          ...options,
+          headers,
+        });
+        if (response.status === 401 && refreshToken && url !== '/auth/refresh') {
+          console.log('Token expired, attempting refresh');
+          const newTokens = await refresh();
+          if (newTokens) {
+            headers.Authorization = `Bearer ${newTokens.token}`;
+            const retryResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+              ...options,
+              headers,
+            });
+            if (!retryResponse.ok) {
+              const errorData = await retryResponse.json();
+              throw new Error(errorData.error || 'Request failed', { cause: errorData });
+            }
+            return retryResponse.status !== 204 ? await retryResponse.json() : null;
           }
-          return retryResponse.status !== 204 ? await retryResponse.json() : null;
         }
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Request failed', { cause: errorData });
+        }
+        return response.status !== 204 ? await response.json() : null;
+      } catch (err) {
+        console.error('apiFetch error:', err.message, { url, options, retries, cause: err.cause });
+        if (retries > 0 && err.message.includes('Failed to fetch')) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          return apiFetch(url, options, retries - 1);
+        }
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Request failed', { cause: errorData });
-      }
-      return response.status !== 204 ? await response.json() : null;
-    } catch (err) {
-      console.error('Fetch error:', err.message, { url, options, retries });
-      if (retries > 0 && err.message.includes('Failed to fetch')) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        return apiFetch(url, options, retries - 1);
-      }
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [token, refreshToken, isInitialized]
+  );
 
-  const initializeAuth = async () => {
+  const initializeAuth = useCallback(async () => {
+    if (isInitialized) {
+      console.log('Auth already initialized, skipping');
+      setLoading(false);
+      return;
+    }
+    console.log('Initializing auth');
     const storedToken = localStorage.getItem('token');
     const storedRefreshToken = localStorage.getItem('refreshToken');
+    console.log('Stored tokens:', { storedToken, storedRefreshToken });
     if (!storedToken || !storedRefreshToken) {
+      console.log('No tokens found, redirecting to login');
       setLoading(false);
+      setIsInitialized(true);
       router.push('/login');
       return;
     }
     setToken(storedToken);
     setRefreshToken(storedRefreshToken);
     try {
+      console.log('Fetching user with token:', storedToken.slice(0, 10) + '...');
       const data = await apiFetch('/auth/me');
+      console.log('User fetched:', data);
       setUser(data);
     } catch (err) {
       console.error('Error fetching /auth/me:', err.message, err.cause);
-      if (refreshToken) {
+      if (err.message === 'Unauthorized' && refreshToken) {
         console.log('Attempting to refresh token');
         const newTokens = await refresh();
         if (newTokens) {
           try {
             const data = await apiFetch('/auth/me');
+            console.log('User fetched after refresh:', data);
             setUser(data);
             return;
           } catch (retryErr) {
@@ -89,21 +119,18 @@ export function AuthProvider({ children }) {
           }
         }
       }
-      console.log('Authentication failed, clearing tokens');
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      setToken(null);
-      setRefreshToken(null);
+      console.log('Authentication failed, but preserving tokens for next attempt');
       setUser(null);
       router.push('/login');
     } finally {
       setLoading(false);
+      setIsInitialized(true);
     }
-  };
+  }, [apiFetch, refreshToken, router, isInitialized]);
 
   useEffect(() => {
     initializeAuth();
-  }, []);
+  }, [initializeAuth]);
 
   const register = async (email, password, username, name, phone, businessName, logo, isBusiness) => {
     const data = await apiFetch('/auth/register', {
@@ -128,14 +155,14 @@ export function AuthProvider({ children }) {
     localStorage.setItem('refreshToken', data.refreshToken);
     setToken(data.token);
     setRefreshToken(data.refreshToken);
-    console.log('Tokens saved:', { token: data.token, refreshToken: data.refreshToken });
+    console.log('Tokens saved:', { token: data.token.slice(0, 10) + '...', refreshToken: data.refreshToken.slice(0, 10) + '...' });
     await fetchUser();
     return data;
   };
 
   const verify = useCallback(async (token) => {
     return await apiFetch(`/auth/verify?token=${token}`);
-  }, []);
+  }, [apiFetch]);
 
   const resendVerification = async (email) => {
     return await apiFetch('/auth/resend-verification', {
@@ -144,9 +171,9 @@ export function AuthProvider({ children }) {
     });
   };
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     try {
-      console.log('Refreshing token with:', refreshToken);
+      console.log('Refreshing token with:', refreshToken.slice(0, 10) + '...');
       const data = await apiFetch('/auth/refresh', {
         method: 'POST',
         body: JSON.stringify({ refreshToken }),
@@ -155,15 +182,15 @@ export function AuthProvider({ children }) {
       localStorage.setItem('refreshToken', data.refreshToken);
       setToken(data.token);
       setRefreshToken(data.refreshToken);
-      console.log('Tokens refreshed:', { token: data.token, refreshToken: data.refreshToken });
+      console.log('Tokens refreshed:', { token: data.token.slice(0, 10) + '...', refreshToken: data.refreshToken.slice(0, 10) + '...' });
       return data;
     } catch (err) {
       console.error('Error refreshing token:', err.message, err.cause);
       return null;
     }
-  };
+  }, [apiFetch, refreshToken]);
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
       const data = await apiFetch('/auth/me');
       setUser(data);
@@ -171,7 +198,7 @@ export function AuthProvider({ children }) {
       console.error('Error fetching user:', err.message);
       setUser(null);
     }
-  };
+  }, [apiFetch]);
 
   const updateUser = async (name, phone) => {
     const data = await apiFetch('/user/update', {
@@ -234,14 +261,14 @@ export function AuthProvider({ children }) {
   const createSchedule = async (branchId, workerId, dayOfWeek, startTime, endTime, slotDuration) => {
     return await apiFetch('/schedules', {
       method: 'POST',
-      body: JSON.stringify({ branchId, dayOfWeek, workerId, startTime, endTime, slotDuration }),
+      body: JSON.stringify({ branchId, workerId, dayOfWeek, startTime, endTime, slotDuration }),
     });
   };
 
   const updateSchedule = async (id, branchId, workerId, dayOfWeek, startTime, endTime, slotDuration) => {
     return await apiFetch(`/schedules/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ id, branchId, workerId, dayOfWeek, startTime, endTime, slotDuration }),
+      body: JSON.stringify({ branchId, workerId, dayOfWeek, startTime, endTime, slotDuration }),
     });
   };
 
@@ -252,14 +279,14 @@ export function AuthProvider({ children }) {
   const createException = async (branchId, workerId, date, isClosed, startTime, endTime) => {
     return await apiFetch('/exceptions', {
       method: 'POST',
-      body: JSON.stringify({ branchId, date, workerId, isClosed, startTime, endTime }),
+      body: JSON.stringify({ branchId, workerId, date, isClosed, startTime, endTime }),
     });
   };
 
   const updateException = async (id, branchId, workerId, date, isClosed, startTime, endTime) => {
     return await apiFetch(`/exceptions/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ id, branchId, date, workerId, isClosed, startTime, endTime }),
+      body: JSON.stringify({ branchId, workerId, date, isClosed, startTime, endTime }),
     });
   };
 
@@ -289,38 +316,49 @@ export function AuthProvider({ children }) {
     router.push('/login');
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        loading,
-        error,
-        register,
-        login,
-        verify,
-        resendVerification,
-        refresh,
-        updateUser,
-        updateBusiness,
-        createBranch,
-        updateBranch,
-        deleteBranch,
-        createWorker,
-        updateWorker,
-        deleteWorker,
-        createSchedule,
-        updateSchedule,
-        deleteSchedule,
-        createException,
-        updateException,
-        deleteException,
-        updateAppointment,
-        getAuditLogs,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      user,
+      token,
+      loading,
+      error,
+      isInitialized,
+      apiFetch,
+      register,
+      login,
+      verify,
+      resendVerification,
+      refresh,
+      updateUser,
+      updateBusiness,
+      createBranch,
+      updateBranch,
+      deleteBranch,
+      createWorker,
+      updateWorker,
+      deleteWorker,
+      createSchedule,
+      updateSchedule,
+      deleteSchedule,
+      createException,
+      updateException,
+      deleteException,
+      updateAppointment,
+      getAuditLogs,
+      logout,
+    }),
+    [
+      user,
+      token,
+      loading,
+      error,
+      isInitialized,
+      apiFetch,
+      verify,
+      refresh,
+      fetchUser,
+    ]
   );
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
