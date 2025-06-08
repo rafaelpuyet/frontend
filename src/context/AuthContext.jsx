@@ -16,9 +16,10 @@ export function AuthProvider({ children }) {
 
   const apiFetch = useCallback(
     async (url, options = {}, retries = 2) => {
-      if (!isInitialized && url !== '/auth/me' && url !== '/auth/refresh') {
-        console.log('Blocking request until auth is initialized:', url);
-        await new Promise(resolve => {
+      // Wait for initialization unless it's an auth-related request
+      if (!isInitialized && !['/auth/me', '/auth/refresh', '/auth/login', '/auth/register'].includes(url)) {
+        console.log('Blocking request until auth initialized:', url);
+        await new Promise((resolve) => {
           const check = () => {
             if (isInitialized) resolve();
             else setTimeout(check, 100);
@@ -26,6 +27,7 @@ export function AuthProvider({ children }) {
           check();
         });
       }
+
       setLoading(true);
       setError(null);
       try {
@@ -67,7 +69,7 @@ export function AuthProvider({ children }) {
       } catch (err) {
         console.error('apiFetch error:', err.message, { url, options, retries, cause: err.cause });
         if (retries > 0 && err.message.includes('Failed to fetch')) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           return apiFetch(url, options, retries - 1);
         }
         setError(err.message);
@@ -88,7 +90,7 @@ export function AuthProvider({ children }) {
     console.log('Initializing auth');
     const storedToken = localStorage.getItem('token');
     const storedRefreshToken = localStorage.getItem('refreshToken');
-    console.log('Stored tokens:', { storedToken, storedRefreshToken });
+    console.log('Stored tokens:', { storedToken: storedToken?.slice(0, 10), storedRefreshToken: storedRefreshToken?.slice(0, 10) });
     if (!storedToken || !storedRefreshToken) {
       console.log('No tokens found, redirecting to login');
       setLoading(false);
@@ -119,7 +121,7 @@ export function AuthProvider({ children }) {
           }
         }
       }
-      console.log('Authentication failed, but preserving tokens for next attempt');
+      console.log('Authentication failed, redirecting to login without clearing tokens');
       setUser(null);
       router.push('/login');
     } finally {
@@ -160,9 +162,12 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const verify = useCallback(async (token) => {
-    return await apiFetch(`/auth/verify?token=${token}`);
-  }, [apiFetch]);
+  const verify = useCallback(
+    async (token) => {
+      return await apiFetch(`/auth/verify?token=${token}`);
+    },
+    [apiFetch]
+  );
 
   const resendVerification = async (email) => {
     return await apiFetch('/auth/resend-verification', {
@@ -171,34 +176,43 @@ export function AuthProvider({ children }) {
     });
   };
 
-  const refresh = useCallback(async () => {
-    try {
-      console.log('Refreshing token with:', refreshToken.slice(0, 10) + '...');
-      const data = await apiFetch('/auth/refresh', {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken }),
-      });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('refreshToken', data.refreshToken);
-      setToken(data.token);
-      setRefreshToken(data.refreshToken);
-      console.log('Tokens refreshed:', { token: data.token.slice(0, 10) + '...', refreshToken: data.refreshToken.slice(0, 10) + '...' });
-      return data;
-    } catch (err) {
-      console.error('Error refreshing token:', err.message, err.cause);
-      return null;
-    }
-  }, [apiFetch, refreshToken]);
+  const refresh = useCallback(
+    async () => {
+      try {
+        console.log('Refreshing token with:', refreshToken?.slice(0, 10) + '...');
+        const data = await apiFetch('/auth/refresh', {
+          method: 'POST',
+          body: JSON.stringify({ refreshToken }),
+        });
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        setToken(data.token);
+        setRefreshToken(data.refreshToken);
+        console.log('Tokens refreshed:', {
+          token: data.token.slice(0, 10) + '...',
+          refreshToken: data.refreshToken.slice(0, 10) + '...',
+        });
+        return data;
+      } catch (err) {
+        console.error('Error refreshing token:', err.message, err.cause);
+        return null;
+      }
+    },
+    [apiFetch, refreshToken]
+  );
 
-  const fetchUser = useCallback(async () => {
-    try {
-      const data = await apiFetch('/auth/me');
-      setUser(data);
-    } catch (err) {
-      console.error('Error fetching user:', err.message);
-      setUser(null);
-    }
-  }, [apiFetch]);
+  const fetchUser = useCallback(
+    async () => {
+      try {
+        const data = await apiFetch('/auth/me');
+        setUser(data);
+      } catch (err) {
+        console.error('Error fetching user:', err.message);
+        setUser(null);
+      }
+    },
+    [apiFetch]
+  );
 
   const updateUser = async (name, phone) => {
     const data = await apiFetch('/user/update', {
@@ -347,17 +361,7 @@ export function AuthProvider({ children }) {
       getAuditLogs,
       logout,
     }),
-    [
-      user,
-      token,
-      loading,
-      error,
-      isInitialized,
-      apiFetch,
-      verify,
-      refresh,
-      fetchUser,
-    ]
+    [user, token, loading, error, isInitialized, apiFetch, verify, refresh, fetchUser]
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
