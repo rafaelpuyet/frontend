@@ -3,131 +3,96 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
+// Debug ID
+const instanceId = Math.random().toString(36).slice(2, 9);
+
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [refreshToken, setRefreshToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
 
-  const apiFetch = useCallback(
-    async (url, options = {}, retries = 2) => {
-      if (!isInitialized && !['/auth/me', '/auth/refresh', '/auth/login', '/auth/register'].includes(url)) {
-        console.log('Blocking request until auth initialized:', url);
-        await new Promise((resolve) => {
-          const check = () => {
-            if (isInitialized) resolve();
-            else setTimeout(check, 100);
-          };
-          check();
-        });
-      }
-
-      setLoading(true);
-      setError(null);
-      try {
-        const headers = {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          ...options.headers,
-        };
-        console.log('apiFetch:', `${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-          method: options.method || 'GET',
-          headers,
-          body: options.body,
-        });
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-          ...options,
-          headers,
-        });
-        if (response.status === 401 && refreshToken && url !== '/auth/refresh') {
-          console.log('Token expired, attempting refresh');
-          const newTokens = await refresh();
-          if (newTokens) {
-            headers.Authorization = `Bearer ${newTokens.token}`;
-            const retryResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-              ...options,
-              headers,
-            });
-            if (!retryResponse.ok) {
-              const errorData = await retryResponse.json();
-              throw new Error(errorData.error || 'Request failed', { cause: errorData });
-            }
-            return retryResponse.status !== 204 ? await retryResponse.json() : null;
+  const apiFetch = useCallback(async (url, options = {}) => {
+    setLoading(true);
+    setError(null);
+    const token = localStorage.getItem('token');
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      };
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+        ...options,
+        headers,
+      });
+      if (response.status === 401 && url !== '/auth/refresh') {
+        console.log(`[${instanceId}] Token expired, attempting refresh`);
+        const newTokens = await refresh();
+        if (newTokens) {
+          headers.Authorization = `Bearer ${newTokens.token}`;
+          const retryResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+            ...options,
+            headers,
+          });
+          if (!retryResponse.ok) {
+            const errorData = await retryResponse.json();
+            throw new Error(errorData.error || 'Request failed', { cause: errorData });
           }
+          return retryResponse.status !== 204 ? await retryResponse.json() : null;
         }
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Request failed', { cause: errorData });
-        }
-        return response.status !== 204 ? await response.json() : null;
-      } catch (err) {
-        console.error('apiFetch error:', err.message, { url, options, retries, cause: err.cause });
-        if (retries > 0 && err.message.includes('Failed to fetch')) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          return apiFetch(url, options, retries - 1);
-        }
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
       }
-    },
-    [token, refreshToken, isInitialized]
-  );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Request failed', { cause: errorData });
+      }
+      return response.status !== 204 ? await response.json() : null;
+    } catch (err) {
+      console.error(`[${instanceId}] apiFetch error: ${err.message}`, { url, options, cause: err.cause });
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const initializeAuth = useCallback(async () => {
-    if (isInitialized) {
-      console.log('Auth already initialized, skipping');
-      setLoading(false);
-      return;
-    }
-    console.log('Initializing auth');
     const storedToken = localStorage.getItem('token');
     const storedRefreshToken = localStorage.getItem('refreshToken');
-    console.log('Stored tokens:', { storedToken: storedToken?.slice(0, 10), storedRefreshToken: storedRefreshToken?.slice(0, 10) });
     if (!storedToken || !storedRefreshToken) {
-      console.log('No tokens found, redirecting to login');
+      console.log(`[${instanceId}] No tokens found, redirecting to login`);
       setLoading(false);
-      setIsInitialized(true);
       router.push('/login');
       return;
     }
-    setToken(storedToken);
-    setRefreshToken(storedRefreshToken);
     try {
-      console.log('Fetching user with token:', storedToken.slice(0, 10) + '...');
       const data = await apiFetch('/auth/me');
-      console.log('User fetched:', data);
       setUser(data);
     } catch (err) {
-      console.error('Error fetching /auth/me:', err.message, err.cause);
-      if (err.message === 'Unauthorized' && refreshToken) {
-        console.log('Attempting to refresh token');
+      console.error(`[${instanceId}] Error fetching /auth/me: ${err.message}`, { cause: err.cause });
+      if (err.message === 'Unauthorized' && storedRefreshToken) {
+        console.log(`[${instanceId}] Attempting to refresh token`);
         const newTokens = await refresh();
         if (newTokens) {
           try {
             const data = await apiFetch('/auth/me');
-            console.log('User fetched after refresh:', data);
+            console.log(`[${instanceId}] User fetched after refresh:`, data);
             setUser(data);
             return;
           } catch (retryErr) {
-            console.error('Error after refresh:', retryErr.message, retryErr.cause);
+            console.error(`[${instanceId}] Error after refresh: ${retryErr.message}`, { cause: retryErr.cause });
           }
         }
       }
-      console.log('Authentication failed, redirecting to login without clearing tokens');
+      console.log(`[${instanceId}] Authentication failed, redirecting to login without clearing tokens`);
       setUser(null);
       router.push('/login');
     } finally {
       setLoading(false);
-      setIsInitialized(true);
     }
-  }, [apiFetch, refreshToken, router, isInitialized]);
+  }, [apiFetch, router]);
 
   useEffect(() => {
     initializeAuth();
@@ -140,23 +105,22 @@ export function AuthProvider({ children }) {
     });
     localStorage.setItem('token', data.token);
     localStorage.setItem('refreshToken', data.refreshToken);
-    setToken(data.token);
-    setRefreshToken(data.refreshToken);
     await fetchUser();
     return data;
   };
 
   const login = async (email, password) => {
-    console.log('Logging in:', { email });
+    console.log(`[${instanceId}] Logging in:`, { email });
     const data = await apiFetch('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
     localStorage.setItem('token', data.token);
     localStorage.setItem('refreshToken', data.refreshToken);
-    setToken(data.token);
-    setRefreshToken(data.refreshToken);
-    console.log('Tokens saved:', { token: data.token.slice(0, 10) + '...', refreshToken: data.refreshToken.slice(0, 10) + '...' });
+    console.log(`[${instanceId}] Tokens saved:`, {
+      token: `${data.token.slice(0, 10)}...`,
+      refreshToken: `${data.refreshToken.slice(0, 10)}...`,
+    });
     await fetchUser();
     return data;
   };
@@ -178,53 +142,51 @@ export function AuthProvider({ children }) {
   const refresh = useCallback(
     async () => {
       try {
-        console.log('Refreshing token with:', refreshToken?.slice(0, 10) + '...');
+        const storedRefreshToken = localStorage.getItem('refreshToken');
+        console.log(`[${instanceId}] Refreshing token with: ${storedRefreshToken?.slice(0, 10)}...`);
         const data = await apiFetch('/auth/refresh', {
           method: 'POST',
-          body: JSON.stringify({ refreshToken }),
+          body: JSON.stringify({ refreshToken: storedRefreshToken }),
         });
         localStorage.setItem('token', data.token);
         localStorage.setItem('refreshToken', data.refreshToken);
-        setToken(data.token);
-        setRefreshToken(data.refreshToken);
-        console.log('Tokens refreshed:', {
-          token: data.token.slice(0, 10) + '...',
-          refreshToken: data.refreshToken.slice(0, 10) + '...',
+        console.log(`[${instanceId}] Tokens refreshed:`, {
+          token: `${data.token.slice(0, 10)}...`,
+          refreshToken: `${data.refreshToken.slice(0, 10)}...`,
         });
         return data;
       } catch (err) {
-        console.error('Error refreshing token:', err.message, err.cause);
+        console.error(`[${instanceId}] Error refreshing token: ${err.message}`, { cause: err.cause });
         return null;
       }
     },
-    [apiFetch, refreshToken]
+    [apiFetch]
   );
 
   const fetchUser = useCallback(
     async () => {
-      if (user || !token) {
-        console.log('Skipping fetchUser:', { hasUser: !!user, hasToken: !!token });
+      if (user || !localStorage.getItem('token')) {
+        console.log(`[${instanceId}] Skipping fetchUser: hasUser=${!!user}, hasToken=${!!localStorage.getItem('token')}`);
         return;
       }
       try {
-        console.log('Fetching user via /auth/me');
+        console.log(`[${instanceId}] Fetching user via /auth/me`);
         const data = await apiFetch('/auth/me');
         setUser(data);
       } catch (err) {
-        console.error('Error fetching user:', err.message, err.cause);
+        console.error(`[${instanceId}] Error fetching user: ${err.message}`, { cause: err.cause });
         setUser(null);
       }
     },
-    [apiFetch, user, token]
+    [apiFetch, user]
   );
 
-  const updateUser = async ({name, phone}) => {
+  const updateUser = async ({ name, phone }) => {
     const data = await apiFetch('/api/users/update', {
       method: 'PUT',
       body: JSON.stringify({ name, phone }),
     });
     localStorage.setItem('token', data.token);
-    setToken(data.token);
     await fetchUser();
     return data;
   };
@@ -235,7 +197,6 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ name, logo, timezone }),
     });
     localStorage.setItem('token', data.token);
-    setToken(data.token);
     await fetchUser();
     return data;
   };
@@ -325,11 +286,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    console.log('Logging out, clearing tokens');
+    console.log(`[${instanceId}] Logging out, clearing tokens`);
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
-    setToken(null);
-    setRefreshToken(null);
     setUser(null);
     router.push('/login');
   };
@@ -337,10 +296,8 @@ export function AuthProvider({ children }) {
   const contextValue = useMemo(
     () => ({
       user,
-      token,
       loading,
       error,
-      isInitialized,
       apiFetch,
       register,
       login,
@@ -365,7 +322,7 @@ export function AuthProvider({ children }) {
       getAuditLogs,
       logout,
     }),
-    [user, token, loading, error, isInitialized, apiFetch, verify, refresh, fetchUser]
+    [user, loading, error, apiFetch, verify, refresh, fetchUser]
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
