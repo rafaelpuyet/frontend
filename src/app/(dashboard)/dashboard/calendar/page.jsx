@@ -15,12 +15,14 @@ export default function Calendar() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [hasFetched, setHasFetched] = useState(false); // Control de fetch
+  const [hasFetched, setHasFetched] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const maxRetries = 3;
   const timezone = 'America/Santiago';
-  const instanceId = Math.random().toString(36).slice(2, 9); // Debug ID
+  const instanceId = Math.random().toString(36).slice(2, 9);
 
   useEffect(() => {
-    console.log(`[${instanceId}] useEffect triggered: authLoading=${authLoading}, user=${!!user}, hasFetched=${hasFetched}`);
+    console.log(`[${instanceId}] useEffect triggered: authLoading=${authLoading}, user=${!!user}, hasFetched=${hasFetched}, retryCount=${retryCount}`);
 
     if (authLoading || !user) {
       console.log(`[${instanceId}] authLoading or no user, setting loading=true`);
@@ -28,8 +30,8 @@ export default function Calendar() {
       return;
     }
 
-    if (hasFetched) {
-      console.log(`[${instanceId}] Already fetched, skipping`);
+    if (hasFetched || retryCount >= maxRetries) {
+      console.log(`[${instanceId}] Already fetched or max retries reached, skipping`);
       setLoading(false);
       return;
     }
@@ -37,23 +39,29 @@ export default function Calendar() {
     let isMounted = true;
 
     const fetchAppointments = async () => {
-      console.log(`[${instanceId}] Fetching appointments`);
+      console.log(`[${instanceId}] Fetching appointments, attempt ${retryCount + 1}`);
       try {
         const data = await apiFetch('/api/appointments');
         console.log(`[${instanceId}] Appointments fetched:`, data);
         if (isMounted) {
           setAppointments(data.appointments || []);
           setHasFetched(true);
+          setRetryCount(0);
         }
       } catch (err) {
-        console.error(`[${instanceId}] Error fetching appointments:`, err);
+        console.error(`[${instanceId}] Error fetching appointments:`, {
+          message: err.message,
+          status: err.response?.status,
+          data: err.response?.data,
+        });
         if (isMounted) {
           if (err.response?.status === 401) {
             setError('Sesión expirada. Por favor, inicia sesión nuevamente.');
+            setHasFetched(true); // Evita reintentos
           } else {
             setError(err.message || 'Error al cargar citas.');
+            setRetryCount((prev) => prev + 1);
           }
-          setHasFetched(true); // Evita reintentos
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -66,7 +74,7 @@ export default function Calendar() {
       isMounted = false;
       console.log(`[${instanceId}] useEffect cleanup`);
     };
-  }, [authLoading, user, apiFetch, hasFetched, instanceId]);
+  }, [authLoading, user, apiFetch, hasFetched, retryCount, instanceId]);
 
   const handleStatusUpdate = async (id, status) => {
     console.log(`[${instanceId}] Updating status for appointment ${id} to ${status}`);

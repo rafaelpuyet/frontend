@@ -14,49 +14,44 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
   const router = useRouter();
 
-  const apiFetch = useCallback(async (url, options = {}) => {
-    setLoading(true);
-    setError(null);
-    const token = localStorage.getItem('token');
-    try {
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...options.headers,
-      };
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-        ...options,
-        headers,
-      });
-      if (response.status === 401 && url !== '/auth/refresh') {
-        console.log(`[${instanceId}] Token expired, attempting refresh`);
-        const newTokens = await refresh();
-        if (newTokens) {
-          headers.Authorization = `Bearer ${newTokens.token}`;
-          const retryResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-            ...options,
-            headers,
-          });
-          if (!retryResponse.ok) {
-            const errorData = await retryResponse.json();
-            throw new Error(errorData.error || 'Request failed', { cause: errorData });
-          }
-          return retryResponse.status !== 204 ? await retryResponse.json() : null;
+const apiFetch = useCallback(async (url, options = {}) => {
+  const token = localStorage.getItem('token');
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    };
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+      ...options,
+      headers,
+    });
+    if (response.status === 401 && url !== '/auth/refresh') {
+      console.log(`[${instanceId}] Token expired, attempting refresh`);
+      const newTokens = await refresh();
+      if (newTokens) {
+        headers.Authorization = `Bearer ${newTokens.token}`;
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+          ...options,
+          headers,
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Request failed', { cause: errorData });
         }
+        return response.status !== 204 ? await response.json() : null;
       }
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Request failed', { cause: errorData });
-      }
-      return response.status !== 204 ? await response.json() : null;
-    } catch (err) {
-      console.error(`[${instanceId}] apiFetch error: ${err.message}`, { url, options, cause: err.cause });
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
     }
-  }, []);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Request failed', { cause: errorData });
+    }
+    return response.status !== 204 ? await response.json() : null;
+  } catch (err) {
+    console.error(`[${instanceId}] apiFetch error: ${err.message}`, { url, options, cause: err.cause });
+    throw err;
+  }
+}, []);
 
   const initializeAuth = useCallback(async () => {
     const storedToken = localStorage.getItem('token');
